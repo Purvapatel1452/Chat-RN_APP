@@ -17,7 +17,7 @@ import React, {useEffect, useState} from 'react';
 import HeaderBar from '../components/HeaderBar';
 import {useDispatch, useSelector} from 'react-redux';
 import axios from 'axios';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {NavigationProp, useNavigation, useRoute} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {clearUser} from '../redux/slices/authSlice';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -26,14 +26,18 @@ import IonIcons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ImagePicker from 'react-native-image-crop-picker';
 import storage from '@react-native-firebase/storage';
-// import firestore from '@react-native-firebase/firestore';
+
 import * as Progress from 'react-native-progress';
 import FastImage from 'react-native-fast-image';
-import {deleteUserAccount, fetchUserDetails, updateUserProfile} from '../redux/slices/usersSlice';
+import {
+  deleteUserAccount,
+  fetchUserDetails,
+  updateUserProfile,
+} from '../redux/slices/usersSlice';
 import {BASE_URL} from '@env';
 
 const ProfileScreen = () => {
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<any>(null);
   const [uploading, setUploading] = useState(false);
   const [transferred, setTransferred] = useState(0);
   const [images, setImages] = useState([]);
@@ -45,14 +49,14 @@ const ProfileScreen = () => {
   const [email, setEmail] = useState('');
   const [mobile, setMobile] = useState('');
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<any>>();
 
   const dispatch = useDispatch();
-  const {userId} = useSelector(state => state.auth);
-  const {details, loading, error} = useSelector(state => state.users);
+  const {userId} = useSelector((state: any) => state.auth);
+  const {details, loading, error} = useSelector((state: any) => state.users);
 
   const route = useRoute();
-  const {data} = route.params;
+  const {data}: any = route.params;
 
   useEffect(() => {
     if (details) {
@@ -86,6 +90,7 @@ const ProfileScreen = () => {
 
   useEffect(() => {
     dispatch(fetchUserDetails(userId));
+    console.log(details.image, '::');
   }, [dispatch, userId, ur]);
 
   const selectImage = async () => {
@@ -95,7 +100,7 @@ const ProfileScreen = () => {
         height: 400,
         cropping: true,
       });
-      const source = {uri: image.path};
+      const source: any = {uri: image.path};
       setImage(source);
     } catch (error) {
       console.log('Error in selecting image:', error);
@@ -109,18 +114,20 @@ const ProfileScreen = () => {
         height: 400,
         cropping: true,
       });
-      const source = {uri: image.path};
+      const source: any = {uri: image.path};
       console.log(source);
       setImage(source);
     } catch (error) {
       console.log('Error in capturing photo:', error);
     }
   };
-
+  const getToken = async () => {
+    return await AsyncStorage.getItem('authToken');
+  };
   const uploadImage = async () => {
     if (!image) return;
 
-    const {uri} = image;
+    const {uri}: any = image;
     const filename = uri.substring(uri.lastIndexOf('/') + 1);
     const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
 
@@ -138,12 +145,20 @@ const ProfileScreen = () => {
     try {
       await task;
       const url = await storage().ref(`user/${filename}`).getDownloadURL();
-
-      console.log(':');
-      const response = await axios.post(`${BASE_URL}/user/uploadImage`, {
-        userId,
-        imageUrl: url,
-      });
+      const token = getToken();
+      console.log('rt54tukyi:', BASE_URL);
+      const response = await axios.post(
+        `${BASE_URL}/user/uploadImage`,
+        {
+          userId,
+          imageUrl: url,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
       if (response) {
         setUr(url);
@@ -180,7 +195,7 @@ const ProfileScreen = () => {
                 );
                 await AsyncStorage.removeItem('authToken');
                 dispatch(clearUser());
-                navigation.navigate('Login');
+           
               } else {
                 Alert.alert(
                   'Failed to delete account!',
@@ -194,20 +209,6 @@ const ProfileScreen = () => {
         },
       ],
     );
-  };
-
-  const handleRecoverAccount = async () => {
-    try {
-      const response = await axios.post(`${BASE_URL}/users/recover`,{email,password});
-      if (response.status === 200) {
-        Alert.alert('Account recovered successfully!');
-        dispatch(fetchUserDetails(userId));
-      } else {
-        Alert.alert('Failed to recover account');
-      }
-    } catch (error) {
-      console.log('Error recovering account:', error);
-    }
   };
 
   return (
@@ -295,6 +296,23 @@ const ProfileScreen = () => {
             />
             <View style={styles.nameContainer}>
               <Text style={styles.name}>+91 {details.mobile}</Text>
+            </View>
+          </View>
+
+          <View style={{flexDirection: 'row', gap: 10, width: width * 0.83}}>
+            <View style={styles.balContainer}>
+              <Text style={styles.name}>balance:</Text>
+            </View>
+            <View style={styles.balContainer}>
+              {details.balance < 0 ? (
+                <Text style={styles.redname}>{`₹ ${details.balance.toFixed(
+                  2,
+                )}`}</Text>
+              ) : (
+                <Text style={styles.greenname}>{`₹ ${details.balance.toFixed(
+                  2,
+                )}`}</Text>
+              )}
             </View>
           </View>
         </View>
@@ -510,6 +528,18 @@ const styles = StyleSheet.create({
 
     fontWeight: 'bold',
   },
+  greenname: {
+    color: 'black',
+    fontSize: 16,
+
+    fontWeight: 'bold',
+  },
+  redname: {
+    color: 'red',
+    fontSize: 16,
+
+    fontWeight: 'bold',
+  },
   email: {
     color: 'gray',
     fontSize: 14,
@@ -555,6 +585,24 @@ const styles = StyleSheet.create({
 
     flex: 1,
     marginRight: width * 0.09,
+  },
+  balContainer: {
+    borderBottomWidth: 1,
+    borderRadius: 10,
+    borderColor: 'orange',
+
+    shadowColor: 'black',
+    backgroundColor: 'white',
+    width: 100,
+    marginTop: 20,
+    height: height * 0.05,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    paddingLeft: 10,
+    paddingTop: 5,
+
+    flex: 1,
   },
   logOutContainer: {
     marginTop: 100,

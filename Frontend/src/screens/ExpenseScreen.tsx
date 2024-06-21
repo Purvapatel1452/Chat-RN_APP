@@ -9,7 +9,7 @@ import {
   Button,
   TouchableOpacity,
 } from 'react-native';
-import axios from 'axios';
+
 import {useRoute} from '@react-navigation/native';
 import HeaderBar from '../components/HeaderBar';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -20,20 +20,18 @@ import FastImage from 'react-native-fast-image';
 
 const ExpenseScreen = ({navigation}: any) => {
   const route = useRoute();
-  const {expenseId} = route.params;
-  // const [expense, setExpense] = useState(null);
-  // const [loading, setLoading] = useState(true);
-  // const [error, setError] = useState(null);
+  const {expenseId}:any = route.params;
+
   
-  const {userId}=useSelector(state=>state.auth)
+  const {userId}=useSelector((state:any)=>state.auth)
   const dispatch=useDispatch()
-  const { expens, loading, error } = useSelector((state) => state.expense);
+  const { expens, loading, error } = useSelector((state:any) => state.expense);
 
   const [load,setLoad]=useState(false)
   const [ld,setLd]=useState(true)
   setTimeout(()=>{
     setLd(false)
-   },1000)
+   },2000)
 
 
    useEffect(()=>{
@@ -44,35 +42,6 @@ useEffect(()=>{
   console.log("EUUSEE")
 
 },[])
-//   const fetchExpense = async () => {
-//     try {
-//       const response = await axios.get(
-//         `http://10.0.2.2:8000/chat/expense/expense/${expenseId}`,
-//       );
-
-//       const expenseData = response.data;
-
-//       // Set current user's payment status as paid
-//       const updatedPayments = expenseData.payments.map((payment) => {
-//         console.log(payment,"***")
-//         if (payment.participant._id === expenseData.payerId._id) {
-          
-//           return { ...payment, paid: true };
-//         }
-//         return payment;
-//       });
-//       // setExpense(response.data);
-// console.log()
-//       setExpense({ ...expenseData, payments: updatedPayments });
-      
-//     } catch (err) {
-//       setError('Error fetching expense details');
-//       console.error(err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
 
 
 
@@ -96,21 +65,10 @@ const fetchExpenseDetails = async () => {
    
   }, [dispatch,expenseId]);
 
-  // const handlePaymentStatus = async (participantId, paid) => {
-  //   try {
-  //     console.log("PRESS",participantId,paid,expenseId)
-
-  //     await axios.post(
-  //       `http://10.0.2.2:8000/chat/expense/paymentStatus`,{expenseId,participantId,paid});
-
-  //     fetchExpense();
-  //   } catch (error) {
-  //     console.log('internal server error', error);
-  //   }
-  // };
+ 
 
 
-  const handlePaymentStatus = async (participantId, paid) => {
+  const handlePaymentStatus = async (participantId: any, paid: boolean) => {
     try {
      setLoad(true)
      setTimeout(()=>{
@@ -124,17 +82,6 @@ const fetchExpenseDetails = async () => {
     }
   };
 
-  // if (loading) {
-  //   return <ActivityIndicator size="large" color="#0000ff" />;
-  // }
-
-  // if (error) {
-  //   return (
-  //     <View style={styles.container}>
-  //       <Text style={styles.error}>{error}</Text>
-  //     </View>
-  //   );
-  // }
 
   return (
     <>
@@ -233,7 +180,7 @@ const fetchExpenseDetails = async () => {
               } paid ₹{expens.amount}
             </Text>
           </View>
-          {expens.payments.map(payment => (
+          {expens.payments.map((payment:any) => (
             <View key={payment.participant._id} style={{flexDirection: 'row'}}>
 
               {

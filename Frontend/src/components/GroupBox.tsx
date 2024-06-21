@@ -4,6 +4,8 @@ import {useNavigation, NavigationProp} from '@react-navigation/native';
 import FastImage from 'react-native-fast-image';
 
 interface Group {
+  iOweGroup: any;
+  groupOwesMe: any;
   _id: string;
   name: string;
   description: string;
@@ -17,7 +19,6 @@ interface GroupBoxProps {
 
 const GroupBox: React.FC<GroupBoxProps> = ({item}) => {
   const navigation = useNavigation<NavigationProp<any>>();
-  const {name, description, groupOwesMe, iOweGroup} = item;
 
   const netBalance = item.groupOwesMe - item.iOweGroup;
   let paymentStatusMessage = '';

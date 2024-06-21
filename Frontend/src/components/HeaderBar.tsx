@@ -1,18 +1,26 @@
-import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  Dimensions,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React, {useEffect} from 'react';
 import ProfilePic from './ProfilePic';
 import IonIcons from 'react-native-vector-icons/Ionicons';
-import {useNavigation} from '@react-navigation/native';
+import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchGroupData} from '../redux/slices/groupSlice';
 import FastImage from 'react-native-fast-image';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
-const HeaderBar = ({title}) => {
-  const navigation = useNavigation();
+const HeaderBar = ({title, onIconPress}: any) => {
+  const navigation = useNavigation<NavigationProp<any>>();
 
   const dispatch = useDispatch();
-  const {userId} = useSelector(state => state.auth);
-  const {groupData, loading, error} = useSelector(state => state.group);
+  const {userId} = useSelector((state: any) => state.auth);
+  const {groupData, loading, error} = useSelector((state: any) => state.group);
 
   useEffect(() => {
     dispatch(fetchGroupData(userId));
@@ -97,7 +105,11 @@ const HeaderBar = ({title}) => {
         return (
           <View style={styles.headerContainer}>
             <Text style={styles.headerText}>Groups</Text>
-
+            <TouchableOpacity onPress={onIconPress} style={{left: 90}}>
+              <View style={styles.imageContainer1}>
+                <AntDesign name="addusergroup" size={22} color={'#D77702'} />
+              </View>
+            </TouchableOpacity>
             <ProfilePic />
           </View>
         );
@@ -149,6 +161,8 @@ const HeaderBar = ({title}) => {
   };
   return renderIcon();
 };
+
+const {width, height} = Dimensions.get('window');
 
 export default HeaderBar;
 
@@ -232,6 +246,20 @@ const styles = StyleSheet.create({
     shadowColor: 'black',
     shadowOpacity: 10,
     elevation: 5,
+  },
+  imageContainer1: {
+    height: height * 0.038,
+    width: height * 0.037,
+    borderRadius: 12,
+    borderColor: 'white',
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    shadowColor: 'black',
+    shadowOpacity: 10,
+    elevation: 5,
+    backgroundColor: 'silver',
   },
   image: {
     height: 36,

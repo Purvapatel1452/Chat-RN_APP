@@ -1,10 +1,17 @@
-import React, { useEffect } from 'react';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserDetails } from '../redux/slices/usersSlice';
-import { RootState } from '../redux/store'; // assuming you have a root reducer defined in store.ts
-import { BASE_URL } from '@env';
+import React, {useEffect, useState} from 'react';
+import {useNavigation, NavigationProp} from '@react-navigation/native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+  Dimensions,
+} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {fetchUserDetails} from '../redux/slices/usersSlice';
+
 import FastImage from 'react-native-fast-image';
 
 interface UserDetails {
@@ -15,11 +22,15 @@ interface UserDetails {
 const ProfilePic: React.FC = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const dispatch = useDispatch();
-  const { userId } = useSelector((state: RootState) => state.auth);
-  const { details, loading, error } = useSelector((state: RootState) => state.users);
+  const {userId} = useSelector((state: any) => state.auth);
+  const {details, loading, error} = useSelector((state: any) => state.users);
+  const [isLoading,setIsLoading]=useState(true)
 
   useEffect(() => {
     dispatch(fetchUserDetails(userId));
+    setTimeout(()=>{
+      setIsLoading(false)
+    },1500)
   }, [dispatch, userId]);
 
   if (loading) {
@@ -31,25 +42,27 @@ const ProfilePic: React.FC = () => {
   }
 
   return (
-    <TouchableOpacity onPress={() => navigation.navigate('Profile', { data: details })}>
+    <TouchableOpacity
+      onPress={() => navigation.navigate('Profile', {data: details})}>
       <View style={styles.imageContainer}>
-       {
-        details.image ?
-        <FastImage source={{ uri: details.image }} style={styles.image} />
-
+        {isLoading ?
+        <ActivityIndicator size="small" color="silver" />
         :
-        <FastImage
-        source={{
-          uri: 'https://www.shutterstock.com/image-vector/default-avatar-profile-icon-vector-600nw-1745180411.jpg',
-        }}
-        style={styles.image}
-      />
-       }
+        
+        details.image ? (
+          <FastImage source={{uri: details.image}} style={styles.image} />
+        ) : (
+          <FastImage
+            source={{
+              uri: 'https://www.shutterstock.com/image-vector/default-avatar-profile-icon-vector-600nw-1745180411.jpg',
+            }}
+            style={styles.image}
+          />
+        )}
       </View>
     </TouchableOpacity>
   );
 };
-
 
 const {width, height} = Dimensions.get('window');
 
@@ -74,91 +87,3 @@ const styles = StyleSheet.create({
 });
 
 export default ProfilePic;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import {useNavigation} from '@react-navigation/native';
-// import axios from 'axios';
-// import React, {useDebugValue, useEffect, useState} from 'react';
-
-// import {
-//   View,
-//   Text,
-//   StyleSheet,
-//   Image,
-//   TouchableOpacity,
-//   ActivityIndicator,
-// } from 'react-native';
-// import {useDispatch, useSelector} from 'react-redux';
-// import {fetchUserDetails} from '../redux/slices/usersSlice';
-// import {BASE_URL} from '@env';
-
-// const ProfilePic = () => {
-//   const navigation = useNavigation();
-//   console.log(BASE_URL, '{{{');
-
-//   const dispatch = useDispatch();
-//   const {userId} = useSelector(state => state.auth);
-//   const {details, loading, error} = useSelector(state => state.users);
-
-//   useEffect(() => {
-//     dispatch(fetchUserDetails(userId));
-//   }, [dispatch, userId]);
-
-//   if (loading) {
-//     return <ActivityIndicator size="small" color="silver" />;
-//   }
-
-//   if (error) {
-//     return <Text>Error: {error}</Text>;
-//   }
-
-//   return (
-//     <>
-//       <TouchableOpacity
-//         onPress={() => navigation.navigate('Profile', {data: details})}>
-//         <View style={styles.ImageContainer}>
-//           <Image source={{uri: details.image}} style={styles.Image} />
-//         </View>
-//       </TouchableOpacity>
-//     </>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   ImageContainer: {
-//     height: 36,
-//     width: 36,
-//     borderRadius: 12,
-//     borderColor: 'black',
-//     borderWidth: 1,
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//     overflow: 'hidden',
-//     shadowColor: 'black',
-//     shadowOpacity: 10,
-//     elevation: 5,
-//   },
-//   Image: {
-//     height: 36,
-//     width: 36,
-//   },
-// });
-
-// export default ProfilePic;

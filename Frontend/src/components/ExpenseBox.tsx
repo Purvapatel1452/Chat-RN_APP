@@ -5,8 +5,9 @@ import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 interface ExpenseItem {
+  settled: any;
   _id: string;
-  type: 'group' | 'personal';
+  type: 'group' | 'non-group';
   amount: number;
   description: string;
   date: string;
@@ -38,11 +39,7 @@ const ExpenseBox: React.FC<ExpenseBoxProps> = ({item}) => {
           {new Date(item.date).toLocaleDateString()}{' '}
         </Text>
         <Text style={styles.textTime}>
-          {new Date(item.date).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true,
-          })}{' '}
+          {item.settled ? 'Settled' : 'Not Settled'}
         </Text>
       </View>
     </TouchableOpacity>

@@ -1,5 +1,5 @@
-import { BASE_URL } from '@env';
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import {BASE_URL} from '@env';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -9,44 +9,61 @@ const getToken = async () => {
 };
 
 // Thunk for fetching expense details
-export const fetchExpense = createAsyncThunk('expense/fetchExpense', async (expenseId, { rejectWithValue }) => {
-  try {
-    const token = await getToken();
-    const response = await axios.get(`${BASE_URL}/expense/expense/${expenseId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const expenseData = response.data;
+export const fetchExpense: any = createAsyncThunk(
+  'expense/fetchExpense',
+  async (expenseId, {rejectWithValue}) => {
+    try {
+      console.log(BASE_URL, 'ewdc dcysajdwugc dew');
+      const token = await getToken();
+      const response = await axios.get(
+        `${BASE_URL}/expense/expense/${expenseId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      const expenseData = response.data;
 
-    // Set current user's payment status as paid
-    const updatedPayments = expenseData.payments.map((payment) => {
-      if (payment.participant._id === expenseData.payerId._id) {
-        return { ...payment, paid: true };
-      }
-      return payment;
-    });
+      // Set current user's payment status as paid
+      const updatedPayments = expenseData.payments.map(
+        (payment: {participant: {_id: any}}) => {
+          if (payment.participant._id === expenseData.payerId._id) {
+            return {...payment, paid: true};
+          }
+          return payment;
+        },
+      );
 
-    return { ...expenseData, payments: updatedPayments };
-  } catch (error) {
-    return rejectWithValue(error.response.data);
-  }
-});
+      return {...expenseData, payments: updatedPayments};
+    } catch (error: any) {
+      return rejectWithValue(error.response.data);
+    }
+  },
+);
 
 // Thunk for updating payment status
-export const updatePaymentStatus = createAsyncThunk('expense/updatePaymentStatus', async ({ expenseId, participantId, paid }, { rejectWithValue }) => {
-  try {
-    const token = await getToken();
-    await axios.post(`${BASE_URL}/expense/paymentStatus`, { expenseId, participantId, paid }, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return { participantId, paid };
-  } catch (error) {
-    return rejectWithValue(error.response.data);
-  }
-});
+export const updatePaymentStatus: any = createAsyncThunk<any, any>(
+  'expense/updatePaymentStatus',
+  async ({expenseId, participantId, paid}, {rejectWithValue}) => {
+    try {
+      console.log(BASE_URL, 'ewfergy67fkdu56y87dygew');
+      const token = await getToken();
+      await axios.post(
+        `${BASE_URL}/expense/paymentStatus`,
+        {expenseId, participantId, paid},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      return {participantId, paid};
+    } catch (error: any) {
+      return rejectWithValue(error.response.data);
+    }
+  },
+);
 
 const expenseSlice = createSlice({
   name: 'expense',
@@ -56,10 +73,10 @@ const expenseSlice = createSlice({
     error: null,
   },
   reducers: {},
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
       // Fetch Expense
-      .addCase(fetchExpense.pending, (state) => {
+      .addCase(fetchExpense.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -67,17 +84,18 @@ const expenseSlice = createSlice({
         state.loading = false;
         state.expens = action.payload;
       })
-      .addCase(fetchExpense.rejected, (state, action) => {
+      .addCase(fetchExpense.rejected, (state: any, action) => {
         state.loading = false;
         state.error = action.payload;
       })
       // Update Payment Status
-      .addCase(updatePaymentStatus.fulfilled, (state, action) => {
+      .addCase(updatePaymentStatus.fulfilled, (state: any, action) => {
         if (state.expens) {
-          state.expens.payments = state.expens.payments.map(payment =>
-            payment.participant._id === action.payload.participantId
-              ? { ...payment, paid: action.payload.paid }
-              : payment
+          state.expens.payments = state.expens.payments.map(
+            (payment: {participant: {_id: any}}) =>
+              payment.participant._id === action.payload.participantId
+                ? {...payment, paid: action.payload.paid}
+                : payment,
           );
         }
       });
@@ -85,16 +103,3 @@ const expenseSlice = createSlice({
 });
 
 export default expenseSlice.reducer;
-
-
-
-
-
-
-
-
-
-
-
-
-

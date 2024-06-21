@@ -9,7 +9,6 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  TouchableHighlight,
   View,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
@@ -19,7 +18,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Error from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {TextInput} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {NavigationProp, useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 import {useDispatch, useSelector} from 'react-redux';
 import {
@@ -30,26 +29,13 @@ import {
   verifyFields,
   verifyOtp,
 } from '../redux/slices/signUpSlice';
-import Background from '../components/Background';
+
 import {TouchableOpacity} from 'react-native';
 
 const SignUp = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<any>>();
 
   const dispatch = useDispatch();
-
-  // const [name,setName]=useState('')
-  // // const [nameVerify,setNameVerify]=useState(false)
-  // const [email,setEmail]=useState('')
-  // // const [emailVerify,setEmailVerify]=useState(false)
-  // const [mobile,setMobile]=useState('')
-  // // const [mobileVerify,setMobileVerify]=useState(false)
-  // const [password,setPassword]=useState('')
-  // // const [passwordVerify,setPasswordVerify]=useState(false)
-
-  // const [otp,setOtp]=useState('')
-  // const [showOtpInput, setShowOtpInput]=useState(false);
-  // const [otpVerify,setOtpVerify]=useState(false)
 
   const {
     userData,
@@ -61,48 +47,14 @@ const SignUp = () => {
     showOtpInput,
     error,
     loading,
-  } = useSelector(state => state.signUp);
+  } = useSelector((state: any) => state.signUp);
   const [showPassword, setShowPassword] = useState(false);
   const [isEditable, setIsEditable] = useState(true);
 
-  const handleChange = (field, value) => {
+  const handleChange = (field: string, value: string) => {
     dispatch(setUserData({[field]: value}));
     dispatch(verifyFields());
   };
-
-  // function handlesendOtp(){
-  //   fetch(`http://10.0.2.2:8000/chat/user/send-otp`, {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify({ email }),
-  //   })
-  //     .then((response) => {
-
-  //       console.log("response zOtp",response.ok)
-  //       if(!response.ok){
-  //       console.log("ALressdy")
-  //       Alert.alert('An Otp is already sent to this email. Please wait before requesting another OTP')
-  //      }
-  //      else{
-  //       console.log("data")
-  //       Alert.alert(
-  //         'OTp Sent Successfully',
-  //         '',
-  //         [
-  //           { text: 'OK', onPress: () => setShowOtpInput(true)},
-
-  //         ],
-  //       );
-
-  //      }
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error sending OTP:', error.message);
-  //       Alert.alert("Error",'Failed to send OTP' )
-  //     });
-  // }
 
   const handlesendOtp = () => {
     if (emailVerify) {
@@ -116,90 +68,22 @@ const SignUp = () => {
     }
   };
 
-  // function handleVerifyOtp(){
-
-  //   fetch('http://10.0.2.2:8000/chat/user/verify-otp',{
-  //     method:'POST',
-  //     headers:{
-  //       'Content-Type':'application/json',
-  //     },
-  //     body:JSON.stringify({email,otp})
-  //   })
-  //   .then((response)=>{
-
-  //     console.log(response);
-  //     if(response.ok){
-  //         Alert.alert("Successfully Verified")
-  //         setShowOtpInput(false)
-  //         setOtpVerify(true)
-  //       }
-  //   else
-  //   Alert.alert("Not Correct")
-
-  //   })
-  //   .then(data=>console.log(data))
-  //   .catch((error)=>{
-  //     console.log("Error:",error)
-  //     Alert.alert('Failed to verify Otp')
-  //   })
-
-  // }
-
   const handleVerifyOtp = () => {
     dispatch(verifyOtp({email: userData.email, otp: userData.otp}));
   };
 
-  // function handleSubmit(){
-
-  //   const userData={
-  //     name,
-  //     email,
-  //     mobile,
-  //     password,
-  //   }
-
-  //   if(nameVerify && emailVerify && passwordVerify && mobileVerify){
-  //     if(otpVerify){
-
-  //      axios
-  //     .post('http://10.0.2.2:8000/chat/user/register',userData)
-  //     .then(res=>{
-  //       console.log("tt",res.config.data)
-  //       Alert.alert(JSON.stringify(res.data.message))
-  //       navigation.navigate('Login')
-  //       console.log("h")
-
-  //     })
-  //     .catch((e)=>{
-  //       console.log("g")
-  //       console.log("ERROR:",e)
-  //       Alert.alert("User Already Exist")
-  //   })
-  //     }
-
-  //   else{
-  //     Alert.alert("Email is not Verified")
-
-  //   }
-  // }
-  //   else{
-  //     Alert.alert('Fill mandatory details')
-  //     console.log('Fill mandatory details')
-  //   }
-
-  // }
-
   function handleSubmit() {
     if (nameVerify && emailVerify && passwordVerify && mobileVerify) {
       if (otpVerify) {
-        dispatch(registerUser(userData)).then(result => {
+        dispatch(registerUser(userData)).then((result: any) => {
           if (registerUser.fulfilled.match(result)) {
             Alert.alert('Registration Successfull');
             navigation.navigate('Login');
           } else if (registerUser.rejected.match(result)) {
             Alert.alert('Registration Failed', result.payload);
           }
-
+          setIsEditable(true);
+          console.log(isEditable, 'EEEEEEEEEEEEEEEEEEEEE');
           dispatch(
             setUserData({
               name: '',
@@ -222,7 +106,6 @@ const SignUp = () => {
         'Please fill in all mandatory details correctly',
       );
     }
-    setIsEditable(true);
   }
 
   useEffect(() => {
@@ -289,11 +172,11 @@ const SignUp = () => {
                 <Feather name="check-circle" color="green" size={20} />
               ) : emailVerify ? (
                 <View style={styles.button1}>
-                  <TouchableHighlight
+                  <TouchableOpacity
                     style={styles.inBut1}
                     onPress={() => handlesendOtp()}>
                     <Text style={styles.textSign1}>Verify</Text>
-                  </TouchableHighlight>
+                  </TouchableOpacity>
                 </View>
               ) : (
                 <Error name="error" color="red" size={20} />
@@ -444,22 +327,19 @@ const SignUp = () => {
           </View>
 
           <View style={styles.button}>
-            <TouchableHighlight
+            <TouchableOpacity
               style={styles.inBut}
               onPress={() => handleSubmit()}>
               <Text style={styles.textSign}>Register</Text>
-            </TouchableHighlight>
+            </TouchableOpacity>
           </View>
 
           <View style={{padding: 15, width: 250, alignSelf: 'center'}}>
-            <TouchableHighlight
+            <TouchableOpacity
               onPress={() => navigation.navigate('Login')}
               style={{backgroundColor: 'gray', borderRadius: 20}}>
-              <Text
-                style={styles.already}>
-                Already have an account?
-              </Text>
-            </TouchableHighlight>
+              <Text style={styles.already}>Already have an account?</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -467,7 +347,7 @@ const SignUp = () => {
   );
 };
 
-const { height } = Dimensions.get('window');
+const {height} = Dimensions.get('window');
 
 export default SignUp;
 
@@ -479,7 +359,7 @@ const styles = StyleSheet.create({
   textSign: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: 'black',
+    color: 'white',
   },
   textSign1: {
     fontSize: 8.5,
@@ -529,7 +409,7 @@ const styles = StyleSheet.create({
 
   loginContainer: {
     width: 320,
-    marginTop:  height*0.18,
+    marginTop: height * 0.18,
     alignItems: 'center',
     backgroundColor: 'white',
     borderRadius: 30,
@@ -538,9 +418,9 @@ const styles = StyleSheet.create({
     elevation: 4,
     shadowColor: 'black',
     shadowOpacity: 10,
-    justifyContent:"center",
-    flex:1,
-    alignSelf:"center"
+    justifyContent: 'center',
+    flex: 1,
+    alignSelf: 'center',
   },
   header: {
     justifyContent: 'flex-end',
@@ -609,15 +489,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 5,
   },
-  already:{
-      padding: 2,
-      color: 'blue',
-      fontWeight: '500',
-      fontSize: 14,
-      backgroundColor: "white",
-      borderRadius: 12,
-      textAlign: 'center',
-      elevation:3,
-      
-  }
+  already: {
+    padding: 2,
+    color: 'blue',
+    fontWeight: '500',
+    fontSize: 14,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    textAlign: 'center',
+    elevation: 3,
+  },
 });

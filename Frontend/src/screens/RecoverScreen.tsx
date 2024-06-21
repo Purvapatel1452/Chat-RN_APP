@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Image,
   ScrollView,
@@ -11,38 +11,49 @@ import {
   StatusBar,
   TextInput,
   Dimensions,
+  TouchableOpacity,
 } from 'react-native';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import {useNavigation, NavigationProp} from '@react-navigation/native';
 import Feather from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import IonIcons from 'react-native-vector-icons/Ionicons';
 
+import {login} from '../redux/slices/authSlice';
+import {useDispatch, useSelector} from 'react-redux';
 
-import { login } from '../redux/slices/authSlice';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../redux/store/store';
 import Icon from 'react-native-vector-icons/Feather';
-import { BASE_URL } from '@env';
+import {BASE_URL} from '@env';
 import axios from 'axios';
-import { fetchUserDetails } from '../redux/slices/usersSlice';
+import {fetchUserDetails} from '../redux/slices/usersSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface LoginProps {}
 
-const RecoverScreen: React.FC<LoginProps> = (props) => {
+const RecoverScreen: React.FC<LoginProps> = props => {
   const navigation = useNavigation<NavigationProp<any>>();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(true);
 
   const dispatch = useDispatch();
-  const { loading, error } = useSelector((state: RootState) => state.auth);
+  const {userId,loading, error} = useSelector((state: any) => state.auth);
 
-  
-
+  const getToken = async () => {
+    return await AsyncStorage.getItem('authToken');
+  };
   const handleRecoverAccount = async () => {
     try {
-        console.log(BASE_URL,"BASEE",email,password)
-      const response = await axios.post(`${BASE_URL}/user/recoverUser`,{email,password});
+      console.log(BASE_URL, 'BAer4gfy3r34fSEE', email, password);
+      const token = getToken();
+      const response = await axios.post(
+        `${BASE_URL}/user/recoverUser`,
+        {email, password},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
       if (response.status === 200) {
         Alert.alert('Account recovered successfully!');
         dispatch(fetchUserDetails(userId));
@@ -57,14 +68,14 @@ const RecoverScreen: React.FC<LoginProps> = (props) => {
   return (
     <KeyboardAvoidingView style={styles.mainContainer} behavior="padding">
       <StatusBar backgroundColor={'#D77702'} />
-      <View style={styles.iconContainer2}> 
-      <IonIcons
-              name="arrow-back-sharp"
-              size={30}
-              color={'black'}
-              onPress={() => navigation.goBack()}
-            />
-            </View>
+      <View style={styles.iconContainer2}>
+        <IonIcons
+          name="arrow-back-sharp"
+          size={30}
+          color={'black'}
+          onPress={() => navigation.goBack()}
+        />
+      </View>
       <ScrollView contentContainerStyle={{}}>
         <View>
           <View style={styles.loginContainer}>
@@ -79,7 +90,7 @@ const RecoverScreen: React.FC<LoginProps> = (props) => {
               <TextInput
                 placeholder="Email"
                 style={styles.textInput}
-                onChangeText={(e) => setEmail(e)}
+                onChangeText={e => setEmail(e)}
                 placeholderTextColor={'gray'}
               />
             </View>
@@ -92,13 +103,11 @@ const RecoverScreen: React.FC<LoginProps> = (props) => {
               <TextInput
                 placeholder="Password"
                 style={styles.textInput}
-                onChangeText={(e) => setPassword(e)}
+                onChangeText={e => setPassword(e)}
                 secureTextEntry={showPassword}
                 placeholderTextColor={'gray'}
               />
-              <TouchableHighlight
-                onPress={() => setShowPassword(!showPassword)}
-              >
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                 {password.length < 1 ? (
                   <Text></Text>
                 ) : !showPassword ? (
@@ -106,17 +115,17 @@ const RecoverScreen: React.FC<LoginProps> = (props) => {
                     name="eye-off"
                     color={'green'}
                     size={23}
-                    style={{ marginRight: -6 }}
+                    style={{marginRight: -6}}
                   />
                 ) : (
                   <Feather
                     name="eye"
                     color={'green'}
                     size={23}
-                    style={{ marginRight: -6 }}
+                    style={{marginRight: -6}}
                   />
                 )}
-              </TouchableHighlight>
+              </TouchableOpacity>
             </View>
             <View
               style={{
@@ -125,24 +134,21 @@ const RecoverScreen: React.FC<LoginProps> = (props) => {
                 alignItems: 'flex-end',
                 marginTop: 8,
                 marginRight: 10,
-              }}
-            >
+              }}>
               {/* <Text style={{ color: 'gray', fontWeight: '700' }}>
                 Forgot Password
               </Text> */}
             </View>
           </View>
           <View style={styles.button}>
-            <TouchableHighlight
+            <TouchableOpacity
               style={styles.inBut}
-              onPress={()=>handleRecoverAccount()}
-              disabled={loading}
-            >
+              onPress={() => handleRecoverAccount()}
+              disabled={loading}>
               <Text style={styles.textSign}>
                 {loading ? ' Recovering...' : 'Recover'}
               </Text>
-            </TouchableHighlight>
-            
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -150,7 +156,7 @@ const RecoverScreen: React.FC<LoginProps> = (props) => {
   );
 };
 
-const { height } = Dimensions.get('window');
+const {height} = Dimensions.get('window');
 
 export default RecoverScreen;
 
@@ -198,7 +204,7 @@ const styles = StyleSheet.create({
   },
   loginContainer: {
     width: 320,
-    marginTop: height*0.25,
+    marginTop: height * 0.25,
     alignItems: 'center',
     backgroundColor: 'white',
     borderRadius: 30,
@@ -254,8 +260,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     elevation: 4,
     shadowColor: 'black',
-    flexDirection:"row",
-    
+    flexDirection: 'row',
   },
   smallIcon2: {
     fontSize: 40,
@@ -266,11 +271,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 5,
   },
-  iconContainer2:{
-
-    top:15,
-    left:15
-
-  }
+  iconContainer2: {
+    top: 15,
+    left: 15,
+  },
 });
-

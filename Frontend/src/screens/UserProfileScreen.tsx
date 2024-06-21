@@ -16,7 +16,11 @@ import React, {useEffect, useState} from 'react';
 
 import {useDispatch, useSelector} from 'react-redux';
 import axios from 'axios';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {
+  NavigationProp,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {clearUser} from '../redux/slices/authSlice';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -40,16 +44,16 @@ const UserProfileScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [load, setLoad] = useState(false);
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<any>>();
 
   const dispatch = useDispatch();
-  const {userId} = useSelector(state => state.auth);
+  const {userId} = useSelector((state: any) => state.auth);
   const {recepientDatas, loading, error} = useSelector(
-    state => state.recepient,
+    (state: any) => state.recepient,
   );
 
   const route = useRoute();
-  const {recepientId} = route.params;
+  const {recepientId}: any = route.params;
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem('authToken');
@@ -67,7 +71,7 @@ const UserProfileScreen = () => {
         height: 400,
         cropping: true,
       });
-      const source = {uri: image.path};
+      const source: any = {uri: image.path};
       setImage(source);
     } catch (error) {
       console.log('Error in selecting image:', error);
@@ -81,18 +85,20 @@ const UserProfileScreen = () => {
         height: 400,
         cropping: true,
       });
-      const source = {uri: image.path};
+      const source: any = {uri: image.path};
       console.log(source);
       setImage(source);
     } catch (error) {
       console.log('Error in capturing photo:', error);
     }
   };
-
+  const getToken = async () => {
+    return await AsyncStorage.getItem('authToken');
+  };
   const uploadImage = async () => {
     if (!image) return;
 
-    const {uri} = image;
+    const {uri}: any = image;
     const filename = uri.substring(uri.lastIndexOf('/') + 1);
     const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
 
@@ -110,12 +116,20 @@ const UserProfileScreen = () => {
     try {
       await task;
       const url = await storage().ref(`user/${filename}`).getDownloadURL();
-
-      console.log(':');
-      const response = await axios.post(`${BASE_URL}/user/uploadImage`, {
-        userId,
-        imageUrl: url,
-      });
+      const token = getToken();
+      console.log(':rtgtjkuhirg', BASE_URL);
+      const response = await axios.post(
+        `${BASE_URL}/user/uploadImage`,
+        {
+          userId,
+          imageUrl: url,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
       if (response) {
         setUr(url);
@@ -136,7 +150,6 @@ const UserProfileScreen = () => {
       <StatusBar backgroundColor={'#D77702'} />
 
       <View style={{alignItems: 'center'}}>
-      
         <View style={{flex: 1}}>
           <View style={{flex: 1, position: 'relative'}}>
             <ImageBackground
@@ -156,26 +169,22 @@ const UserProfileScreen = () => {
           </View>
         </View>
         <View style={styles.contentContainer}>
-        <View style={styles.imageContainer}>
-          {loading ? (
-            <ActivityIndicator size={30} style={{height: 190}} />
-          ) : recepientDatas.image ? (
-        
+          <View style={styles.imageContainer}>
+            {loading ? (
+              <ActivityIndicator size={30} style={{height: 190}} />
+            ) : recepientDatas.image ? (
               <FastImage
                 source={{uri: recepientDatas.image}}
                 style={styles.profileImage}
               />
-         
-          ) : (
-      
+            ) : (
               <IonIcons
                 name="person-outline"
                 size={140}
                 style={styles.profileImage1}
               />
-          
-          )}
-             </View>
+            )}
+          </View>
 
           <View style={{flexDirection: 'row', gap: 10, alignItems: 'center'}}>
             <View style={styles.nameContainer}>
@@ -260,7 +269,7 @@ const styles = StyleSheet.create({
     height: height * 0.18,
     width: height * 0.18,
     backgroundColor: '#F2F2F2',
-    marginTop: height*0.001,
+    marginTop: height * 0.001,
   },
   name: {
     color: 'black',

@@ -23,12 +23,12 @@ import {
 import Entypo from 'react-native-vector-icons/Entypo';
 import Feather from 'react-native-vector-icons/Feather';
 import EmojiSelector from 'react-native-emoji-selector';
-import {useRoute} from '@react-navigation/native';
+import {NavigationProp, useNavigation, useRoute} from '@react-navigation/native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import ImagePicker from 'react-native-image-crop-picker';
 import HeaderBar from '../components/HeaderBar';
-import axios from 'axios';
+
 import ExpenseBox from '../components/ExpenseBox';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchMessages, sendMessage} from '../redux/slices/chatSlice';
@@ -41,10 +41,9 @@ import Modal from 'react-native-modal';
 import HeaderChatBar from '../components/HeaderChatBar';
 import FastImage from 'react-native-fast-image';
 
-
-
-const ChatMessageScreen = ({navigation}: any) => {
-  const [showEmojiSelector, setShowEmojiSelector] = useState(false);
+const ChatMessageScreen = () => {
+  const navigation = useNavigation<NavigationProp<any>>();
+  const [showEmojiSelector, setShowEmojiSelector] = useState<any>(false);
   const [isModalVisible, setModalVisible] = useState(false);
 
   const route = useRoute();
@@ -55,17 +54,17 @@ const ChatMessageScreen = ({navigation}: any) => {
   const [isExpense, setIsExpense] = useState(true);
   const [expenseList, setExpenseList] = useState([]);
 
-  const scrollViewRef = useRef(null);
+  const scrollViewRef = useRef<any>(null);
 
   const dispatch = useDispatch();
-  const {userId} = useSelector(state => state.auth);
-  const {messages, loading, error} = useSelector(state => state.chat);
+  const {userId} = useSelector((state: any) => state.auth);
+  const {messages, loading, error} = useSelector((state: any) => state.chat);
   const {
     recepientDatas,
     userExpense,
     loading: recepientLoading,
     error: recepientError,
-  } = useSelector(state => state.recepient);
+  } = useSelector((state: any) => state.recepient);
 
   const handleEmojiPress = () => {
     setShowEmojiSelector(!showEmojiSelector);
@@ -76,323 +75,87 @@ const ChatMessageScreen = ({navigation}: any) => {
   };
 
   const isChat = () => {
-
-    scrollToBottom()
+    scrollToBottom();
     setIsExpense(false);
-    
   };
 
-  // const userExpenses=async()=>{
-  //   console.log("+++++++++++++++++++++++++++++++")
-  //   try{
-  //  console.log(recepientId,"0000;;;;")
-  //     const response= await axios.get(`http://10.0.2.2:8000/chat/expense/userExpenses/${userId}/${recepientId}`);
-
-  //     console.log(response.data,")))")
-
-  //     setExpenseList(response.data)
-
-  //   }
-  //   catch(error){
-  //     console.log("internal server error",error);
-
-  //   }
-  // }
-
-  // const fetchMessage = async () => {
-  //   try {
-
-  //     dispatch(fetchMessages({userId,recepientId}))
-
-  //   } catch (err) {
-  //     console.log('error in fetching msg', err);
-  //   }
-  // };
-
-  // useEffect(() => {
-
-  //   dispatch(fetchMessages({userId,recepientId}))
-  //   dispatch(fetchUserExpenses({userId,recepientId}))
-
-  // }, []);
   useEffect(() => {
     dispatch(fetchMessages({userId, recepientId}));
     dispatch(fetchUserExpenses({userId, recepientId}));
     dispatch(fetchRecepientData(recepientId));
+    scrollToBottom();
   }, [dispatch, userId, recepientId]);
 
-  // useEffect(() => {
-  //   const fetchRecepientData = async () => {
-  //     try {
-  //       const response = await fetch(
-  //         `http://10.0.2.2:8000/chat/message/user/${recepientId}`,
-  //       );
-
-  //       const data = await response.json();
-
-  //       setRecepientData(data);
-  //     } catch (err) {
-  //       console.log('error in frontend', err);
-  //     }
-  //   };
-
-  //   fetchRecepientData();
-  // }, []);
-
-  // useEffect(()=>{
-
-  //   dispatch(fetchRecipientData(recepientId))
-
-  // },[])
-
-  // const handleSend = async (messageType: any, imageUri: any) => {
-  //   try {
-  //     const formData = new FormData();
-
-  //     formData.append('senderId', userId);
-  //     formData.append('recepientId', recepientId);
-
-  //     //check msg type image or text
-
-  //     if (messageType == 'image') {
-  //       formData.append('messageType', 'image');
-  //       formData.append('imageFile', {
-  //         uri: imageUri,
-  //         name: 'image.jpg',
-  //         type: 'image/jpeg',
-  //       });
-  //     } else {
-  //       formData.append('messageType', 'text');
-  //       formData.append('messageText', message);
-  //     }
-
-  //     const response = await fetch(
-  //       'http://10.0.2.2:8000/chat/message/sendMessages',
-  //       {
-  //         method: 'POST',
-  //         body: formData,
-  //       },
-  //     );
-
-  //     if (response.ok) {
-  //       setMessage('');
-  //       setSelectedImage('');
-  //     }
-
-  //     fetchMessages();
-  //   } catch (err) {
-  //     console.log('error in sending msg', err);
-  //   }
-  // };
   const scrollToBottom = () => {
     setTimeout(() => {
       scrollViewRef.current?.scrollToEnd({animated: true});
     }, 1000);
   };
 
-  // const handleSend = async (messageType: any, imageUri: any) => {
-  //   try {
-  //     console.log('SENNDD');
-  //     const formData = new FormData();
-
-  //     formData.append('senderId', userId);
-  //     formData.append('recepientId', recepientId);
-
-  //     //check msg type image or text
-
-  //     if (messageType == 'image') {
-  //       formData.append('messageType', 'image');
-  //       formData.append('imageFile', {
-  //         uri: imageUri,
-  //         name: 'image.jpg',
-  //         type: 'image/jpeg',
-  //       });
-  //     } else {
-  //       console.log('1111');
-  //       formData.append('messageType', 'text');
-  //       formData.append('messageText', message);
-  //     }
-  //     console.log(formData, '!!!!!!y');
-
-  //     dispatch(sendMessage({formData})).then(response => {
-  //       console.log(response, '))))))');
-  //     });
-
-  //     dispatch(fetchMessages({userId, recepientId}));
-
-  //     setMessage('');
-  //     setSelectedImage('');
-
-  //     scrollToBottom();
-  //   } catch (err) {
-  //     console.log('error in sending msg', err);
-  //   }
-  // };
-
-  // useLayoutEffect(() => {
-  //   navigation.setOptions({
-  //     headerTitle: '',
-  //     headerLeft: () => (
-  //       <View style={styles.headerContainer}>
-  //         <Icon
-  //           onPress={() => navigation.goBack()}
-  //           name="arrow-back"
-  //           size={24}
-  //           color="black"
-  //         />
-
-  //         <View style={styles.profileContainer}>
-  //           <Image
-  //             style={styles.headerProfilePic}
-  //             source={{uri: recepientData.image}}
-  //           />
-
-  //           <Text style={styles.nameText}>{recepientData.name}</Text>
-  //         </View>
-  //       </View>
-  //     )
-  //     // tabBarVisible:false
-  //   });
-  // }, [recepientData]);
-
   const formatTime = (time: any) => {
-    const options = {hour: 'numeric', minute: 'numeric'};
+    const options: any = {hour: 'numeric', minute: 'numeric'};
     return new Date(time).toLocaleString('en-US', options);
   };
 
-
-
-  const handleSend = async (messageType: any, imageUri: any) => {
+  const handleSend: any = async (messageType: any, imageUri: any) => {
     try {
-
-    
-   
-  
-  
-  
       //check msg type image or text
-      let formData={}
-     
+      let formData = {};
+
       if (messageType == 'image') {
-        const {uri}=imageUri
-  
+        const {uri} = imageUri;
+
         const filename = uri.substring(uri.lastIndexOf('/') + 1);
-        const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
-  
-     
-    
+        const uploadUri =
+          Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+
         const task = storage().ref(`chat/${filename}`).putFile(uploadUri);
-        toggleModal()
-       
-        
-  
+        toggleModal();
+
         try {
           await task;
           const url = await storage().ref(`chat/${filename}`).getDownloadURL();
-       
-  
-   
-    formData={
-      senderId:userId,
-      recepientId:recepientId,
-      messageType:messageType,
-      messageText:message,
-      imageUrl:url
-    }
-  
-   
-         
-    
-        
+
+          formData = {
+            senderId: userId,
+            recepientId: recepientId,
+            messageType: messageType,
+            messageText: message,
+            imageUrl: url,
+          };
         } catch (e) {
           console.error(e);
         }
-    
-     
-  
       } else {
-       
-        formData={
-          senderId:userId,
-          recepientId:recepientId,
-          messageType:messageType,
-          messageText:message,
-          imageUrl:null
-        }
+        formData = {
+          senderId: userId,
+          recepientId: recepientId,
+          messageType: messageType,
+          messageText: message,
+          imageUrl: null,
+        };
       }
-    
-    
-     
-     dispatch(sendMessage({formData}))
-      .then((response)=>{
-  
-       
-  
-  })
-  
-  if (messageType == 'image') {
 
-    setTimeout(() => {
-      dispatch(fetchMessages({userId,recepientId:recepientId}))
-      
-    }, 2000);
-  
-  }else{
-    setTimeout(() => {
-      dispatch(fetchMessages({userId,recepientId:recepientId}))
-      
-    }, 1000);
-  
-  }
+      dispatch(sendMessage({formData})).then((response: any) => {});
 
-     
-        setMessage('');
-        setSelectedImage('');
+      if (messageType == 'image') {
+        setTimeout(() => {
+          dispatch(fetchMessages({userId, recepientId: recepientId}));
+        }, 2000);
+      } else {
+        setTimeout(() => {
+          dispatch(fetchMessages({userId, recepientId: recepientId}));
+        }, 1000);
+      }
 
-          
-        scrollToBottom()
-  
+      setMessage('');
+      setSelectedImage('');
+
+      scrollToBottom();
     } catch (err) {
       console.log('error in sending msg', err);
     }
   };
-
-
-
-
-
-  // const pickImage=async()=>{
-  //   const result=await ImagePicker.launchCameraAsync({
-  //     mediaType:ImagePicker.launchImageLibrary,
-  //     allowsEditing:true,
-  //     aspect:[4,3],
-  //     quality:1
-  //   })
-  //   console.log(result)
-
-  // const options = {
-  //   title: 'Select Image',
-  //   storageOptions: {
-  //     skipBackup: true,
-  //     path: 'images',
-  //   },
-  // };
-
-  // const pickImage=()=>{
-  //   ImagePicker.launchImageLibrary(options, (response) => {
-  //   console.log('Response = ', response);
-
-  //   if (response.didCancel) {
-  //     console.log('User cancelled image picker');
-  //   } else if (response.error) {
-  //     console.log('ImagePicker Error: ', response.error);
-  //   } else {
-  //     // Use the selected image URI
-  //     const source = { uri: response.uri };
-  //     // You can also display the image using the source.uri
-  //   }
-  // });
-  // }
 
   const pickImage = async () => {
     await ImagePicker.openPicker({
@@ -401,8 +164,7 @@ const ChatMessageScreen = ({navigation}: any) => {
       cropping: true,
     })
       .then(image => {
-       
-        const source={uri:image.path}
+        const source = {uri: image.path};
         handleSend('image', source);
       })
       .catch(err => {
@@ -416,8 +178,7 @@ const ChatMessageScreen = ({navigation}: any) => {
       height: 400,
       cropping: true,
     }).then(image => {
-     
-      const source={uri:image.path}
+      const source = {uri: image.path};
       handleSend('image', source);
     });
   };
@@ -451,16 +212,18 @@ const ChatMessageScreen = ({navigation}: any) => {
             ) : recepientError ? (
               <Text>Error loading expenses: {recepientError}</Text>
             ) : (
-              userExpense.map((item, index) => (
-                <ExpenseBox key={index} item={item} />
-              ))
+              userExpense.map(
+                (item: any, index: React.Key | null | undefined) => (
+                  <ExpenseBox key={index} item={item} />
+                ),
+              )
             )}
           </Pressable>
         </ScrollView>
       ) : (
         <KeyboardAvoidingView style={styles.keyboardContainer}>
           <ScrollView ref={scrollViewRef}>
-            {messages.map((item: any, index) => {
+            {messages.map((item: any, index: React.Key | null | undefined) => {
               if (item.messageType == 'text') {
                 return (
                   <Pressable
@@ -501,30 +264,22 @@ const ChatMessageScreen = ({navigation}: any) => {
                 );
               }
               if (item.messageType === 'image') {
-                // const baseUrl =
-                //   'react native/final_demo_copy-chat/Chat-RN_App/Backend/files/';
-                // const imageUrl = item.imageUrl;
-                // console.log('IO', imageUrl);
-                // const filename = imageUrl.split('\\').pop();
-                // console.log('F', filename);
-                // // const source={uri:baseUrl+filename}
-                const source =item.imageUrl
-               
+                const source = item.imageUrl;
+
                 return (
                   <Pressable
                     key={index}
                     style={[
-                      !item.senderId._id ?
-                      {
-                        alignSelf: 'flex-end',
-                        backgroundColor: '#DCF8C6',
-                        padding: 8,
-                        maxWidth: '60%',
-                        borderRadius: 7,
-                        margin: 10,
-                      }
-                      :
-                      item.senderId._id == userId
+                      !item.senderId._id
+                        ? {
+                            alignSelf: 'flex-end',
+                            backgroundColor: '#DCF8C6',
+                            padding: 8,
+                            maxWidth: '60%',
+                            borderRadius: 7,
+                            margin: 10,
+                          }
+                        : item.senderId._id == userId
                         ? {
                             alignSelf: 'flex-end',
                             backgroundColor: '#DCF8C6',
@@ -615,18 +370,18 @@ const ChatMessageScreen = ({navigation}: any) => {
           {showEmojiSelector && (
             <EmojiSelector
               style={{height: 250}}
-              onEmojiSelected={emoji => {
+              onEmojiSelected={(emoji:any) => {
                 setMessage(prevMessage => prevMessage + emoji);
               }}
             />
           )}
         </KeyboardAvoidingView>
       )}
-       <Modal
+      <Modal
         isVisible={isModalVisible}
         onBackdropPress={toggleModal}
         onBackButtonPress={toggleModal}
-        style={{ justifyContent: 'flex-end', margin: 0 }}>
+        style={{justifyContent: 'flex-end', margin: 0}}>
         <View
           style={{
             backgroundColor: 'white',
@@ -634,15 +389,17 @@ const ChatMessageScreen = ({navigation}: any) => {
             borderTopLeftRadius: 20,
             borderTopRightRadius: 20,
           }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
             <TouchableOpacity onPress={pickImage} style={styles.iconContainer1}>
               <Feather name="image" size={30} color="#595959" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={pickCamera} style={styles.iconContainer1}>
+            <TouchableOpacity
+              onPress={pickCamera}
+              style={styles.iconContainer1}>
               <Feather name="camera" size={30} color="#595959" />
             </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={toggleModal} style={{ marginTop: 20 }}>
+          <TouchableOpacity onPress={toggleModal} style={{marginTop: 20}}>
             <Text style={styles.modalOption}>Cancel</Text>
           </TouchableOpacity>
         </View>
@@ -769,7 +526,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'silver',
     borderRadius: 50,
     padding: 15,
-    
-  
   },
 });

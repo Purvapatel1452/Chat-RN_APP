@@ -1,3 +1,4 @@
+
 import { configureStore } from "@reduxjs/toolkit";
 import userReducer from "../slices/usersSlice";
 import authReducer from "../slices/authSlice";
@@ -57,19 +58,8 @@ interface PaymentState {
   // Define the state structure for payment slice
 }
 
-// Define the combined root state interface
-interface RootState {
-  auth: AuthState;
-  signUp: SignUpState;
-  group: GroupState;
-  expenses: ExpensesState;
-  expense: ExpenseState;
-  friend: FriendState;
-  chat: ChatState;
-  recepient: RecepientState;
-  users: UsersState;
-  payment: PaymentState;
-}
+
+
 
 // Configure the Redux store with the root reducer and middleware
 const store = configureStore({
@@ -93,8 +83,7 @@ const store = configureStore({
     }),
 });
 
-// Define RootState and AppDispatch types for use in the application
-//  RootState = ReturnType<typeof store.getState>;
+
 export type AppDispatch = typeof store.dispatch;
 
 export default store;

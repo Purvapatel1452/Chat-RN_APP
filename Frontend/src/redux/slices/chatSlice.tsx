@@ -1,19 +1,24 @@
-import { BASE_URL } from '@env';
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import {BASE_URL} from '@env';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Helper function to get token
+interface stateType {
+  messages: any[];
+  loading: boolean;
+  error: any;
+}
+
 const getToken = async () => {
   return await AsyncStorage.getItem('authToken');
 };
 
-export const fetchMessages = createAsyncThunk(
+export const fetchMessages: any = createAsyncThunk<any, any>(
   'chat/fetchMessages',
-  async ({ userId, groupId, recepientId }, { rejectWithValue }) => {
+  async ({userId, groupId, recepientId}, {rejectWithValue}) => {
     try {
       let d = null;
-      console.log(BASE_URL, 'fggrtgeh gr');
+      console.log(BASE_URL, 'fcdekjscsdcxhwrfggkxewgdrtgeh gr');
       if (recepientId) {
         d = {
           senderId: userId,
@@ -34,29 +39,33 @@ export const fetchMessages = createAsyncThunk(
       });
 
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       return rejectWithValue(error.response.data);
     }
   },
 );
 
-export const sendMessage = createAsyncThunk(
+export const sendMessage: any = createAsyncThunk<any, any>(
   'chat/sendMessage',
-  async ({ formData }, { rejectWithValue }) => {
+  async ({formData}, {rejectWithValue}) => {
     try {
-      console.log(BASE_URL, 'gg;gtgfgg;N');
+      console.log(BASE_URL, 'ggajgdwcdcuecr;gtgfgg;N');
       const token = await getToken();
-      const response = await axios.post(`${BASE_URL}/message/sendMessages`, formData, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+      const response = await axios.post(
+        `${BASE_URL}/message/sendMessages`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
       const data = response.data;
 
-      fetchMessages({ formData });
+      // fetchMessages({ formData });
       return data;
-    } catch (error) {
+    } catch (error: any) {
       return rejectWithValue(error.response.data);
     }
   },
@@ -70,27 +79,28 @@ const chatSlice = createSlice({
     error: null,
   },
   reducers: {},
-  extraReducers: (builder) => {
+
+  extraReducers: builder => {
     builder
-      .addCase(fetchMessages.pending, (state) => {
+      .addCase(fetchMessages.pending, state => {
         state.loading = true;
       })
       .addCase(fetchMessages.fulfilled, (state, action) => {
         state.loading = false;
         state.messages = action.payload;
       })
-      .addCase(fetchMessages.rejected, (state, action) => {
+      .addCase(fetchMessages.rejected, (state: stateType, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-      .addCase(sendMessage.pending, (state) => {
+      .addCase(sendMessage.pending, state => {
         state.loading = true;
       })
-      .addCase(sendMessage.fulfilled, (state, action) => {
+      .addCase(sendMessage.fulfilled, (state: stateType, action) => {
         state.loading = false;
         state.messages.push(action.payload);
       })
-      .addCase(sendMessage.rejected, (state, action) => {
+      .addCase(sendMessage.rejected, (state: stateType, action) => {
         state.loading = false;
         state.error = action.payload;
       });
@@ -98,14 +108,3 @@ const chatSlice = createSlice({
 });
 
 export default chatSlice.reducer;
-
-
-
-
-
-
-
-
-
-
-

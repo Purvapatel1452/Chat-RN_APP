@@ -19,7 +19,7 @@ import React, {useEffect, useState} from 'react';
 import HeaderBar from '../components/HeaderBar';
 import {useDispatch, useSelector} from 'react-redux';
 import axios from 'axios';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {NavigationProp, useNavigation, useRoute} from '@react-navigation/native';
 
 import IonIcons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -31,9 +31,10 @@ import {BASE_URL} from '@env';
 import {editGroup, fetchGroupData} from '../redux/slices/groupSlice';
 import UserChat from '../components/UserChat';
 import FastImage from 'react-native-fast-image';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ChatProfileScreen = () => {
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<any>(null);
   const [uploading, setUploading] = useState(false);
   const [transferred, setTransferred] = useState(0);
   const [images, setImages] = useState([]);
@@ -44,18 +45,18 @@ const ChatProfileScreen = () => {
   const [groupDescription, setGroupDescription] = useState('');
   const [members, setMembers] = useState([]);
   const [editModal, setEditModal] = useState(false);
-  const [selectedFriends, setSelectedFriends] = useState([]);
+  const [selectedFriends, setSelectedFriends] = useState<any>([]);
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<any>>();
 
   const dispatch = useDispatch();
-  const {userId} = useSelector(state => state.auth);
+  const {userId} = useSelector((state:any) => state.auth);
   const {groupData, friends, loading, error} = useSelector(
-    state => state.group,
+    (state:any) => state.group,
   );
 
   const route = useRoute();
-  const {groupId} = route.params;
+  const {groupId}:any = route.params;
 
   useEffect(() => {
     dispatch(fetchGroupData(groupId));
@@ -65,8 +66,8 @@ const ChatProfileScreen = () => {
     if (groupData) {
       setGroupName(groupData.name);
       setGroupDescription(groupData.description);
-      setMembers(groupData.members.map(member => member._id));
-      setSelectedFriends(groupData.members.map(member => member._id));
+      setMembers(groupData.members.map((member:any) => member._id));
+      setSelectedFriends(groupData.members.map((member:any) => member._id));
     }
   }, [groupData]);
 
@@ -84,7 +85,7 @@ const ChatProfileScreen = () => {
         Alert.alert('Group updated successfully!');
         setEditModal(false);
       })
-      .catch(error => {
+      .catch((error:any) => {
         Alert.alert('Failed to update group:', error.message);
       });
   };
@@ -96,7 +97,7 @@ const ChatProfileScreen = () => {
         height: 400,
         cropping: true,
       });
-      const source = {uri: image.path};
+      const source:any = {uri: image.path};
       setImage(source);
     } catch (error) {
       console.log('Error in selecting image:', error);
@@ -111,7 +112,7 @@ const ChatProfileScreen = () => {
         height: 400,
         cropping: true,
       });
-      const source = {uri: image.path};
+      const source:any = {uri: image.path};
 
       setImage(source);
     } catch (error) {
@@ -119,35 +120,44 @@ const ChatProfileScreen = () => {
     }
   };
 
+  const getToken = async () => {
+    return await AsyncStorage.getItem('authToken');
+  };
   const uploadImage = async () => {
     if (!image) return;
 
-    const {uri} = image;
+    const {uri}:any = image;
     const filename = uri.substring(uri.lastIndexOf('/') + 1);
     const uploadUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
 
     setUploading(true);
     setTransferred(0);
-
+    console.log(uploadUri,"UURI")
     const task = storage().ref(`group/${filename}`).putFile(uploadUri);
-
+console.log(task,"TASK")
     task.on('state_changed', snapshot => {
       setTransferred(
         Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 100,
       );
+      console.log("i")
     });
 
     try {
       await task;
       const url = await storage().ref(`group/${filename}`).getDownloadURL();
-
-      console.log(':', BASE_URL);
-      const response = await axios.post(`${BASE_URL}/group/uploadGroupImage`, {
+      console.log(url)
+      const token=getToken()
+      console.log(':sdthyhgfytthce', BASE_URL);
+       await axios.post(`${BASE_URL}/group/uploadGroupImage`, {
         groupId: groupData._id,
         imageUrl: url,
+      },{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      if (response) {
+      
         setUr(url);
 
         setUploading(false);
@@ -155,15 +165,15 @@ const ChatProfileScreen = () => {
 
         Alert.alert('Photo uploaded!');
         setImage(null);
-      }
+     
     } catch (e) {
       console.error(e);
     }
   };
 
-  const handleSelection = friendId => {
+  const handleSelection = (friendId:any) => {
     if (selectedFriends.includes(friendId)) {
-      setSelectedFriends(selectedFriends.filter(id => id !== friendId));
+      setSelectedFriends(selectedFriends.filter((id:any) => id !== friendId));
     } else {
       setSelectedFriends([...selectedFriends, friendId]);
     }
@@ -226,7 +236,7 @@ const ChatProfileScreen = () => {
             top: height * 0.02,
           }}>
           <Pressable>
-            {groupData.members.map((item, index) => (
+            {groupData.members.map((item:any, index: React.Key | null | undefined) => (
               <UserChat
                 key={index}
                 item={item}
@@ -558,7 +568,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Adjust the opacity to make the image look dull
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
   icon: {
     position: 'absolute',

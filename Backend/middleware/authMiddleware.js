@@ -15,7 +15,7 @@ console.log(token)
     // Verify token
     // const decoded = jwt.verify(token, "Purv@ p@tel");
     // req.user = decoded; // Add user data to request object
-    next(); // Pass control to the next middleware or route handler
+    next(); 
   } catch (err) {
     res.status(400).json({ message: "Invalid token." });
   }

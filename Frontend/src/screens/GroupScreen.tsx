@@ -34,13 +34,11 @@ import {
   fetchGroups,
 } from '../redux/slices/groupSlice';
 import {addExpense} from '../redux/slices/expensesSlice';
-import {fetchUsers} from '../redux/slices/usersSlice';
-import Feather from 'react-native-vector-icons/Feather';
-import Modall from 'react-native-modal';
+
 import ImagePicker, {openCamera} from 'react-native-image-crop-picker';
 import FastImage from 'react-native-fast-image';
-import storage from '@react-native-firebase/storage';
-// import firestore from '@react-native-firebase/firestore';
+
+
 import {fetchFriendsPaymentStatus} from '../redux/slices/friendSlice';
 import {fetchUserSubscription} from '../redux/slices/subscriptionSlice';
 import {useFocusEffect} from '@react-navigation/native';
@@ -60,13 +58,13 @@ const GroupScreen: React.FC<GroupScreenProps> = ({navigation}) => {
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
 
-  const [selectedFriends, setSelectedFriends] = useState([]);
+  const [selectedFriends, setSelectedFriends] = useState<any>([]);
 
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [expenseDescription, setExpenseDescription] = useState('');
   const [amount, setAmount] = useState('');
-  const [expenseSelect, setExpenseSelect] = useState([]);
-  const [expenseSelectedFrnds, setExpenseSelectedFrnds] = useState([]);
+  const [expenseSelect, setExpenseSelect] = useState<any>([]);
+  const [expenseSelectedFrnds, setExpenseSelectedFrnds] = useState<any>([]);
   const [isGroup, setIsGroup] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
@@ -77,33 +75,33 @@ const GroupScreen: React.FC<GroupScreenProps> = ({navigation}) => {
   const [refresh, setRefresh] = useState(false);
 
   const dispatch = useDispatch();
-  const {userId} = useSelector(state => state.auth);
+  const {userId} = useSelector((state:any) => state.auth);
 
   const {
     groups,
     loading: groupLoading,
     error: groupError,
-  } = useSelector(state => state.group);
+  } = useSelector((state:any) => state.group);
   const {
     friends,
     loading: friendLoading,
     error: friendError,
-  } = useSelector(state => state.group);
+  } = useSelector((state:any) => state.group);
   const {
     groupPaymentStatus,
     loading: groupStatusLoading,
     error: groupStatusError,
-  } = useSelector(state => state.group);
+  } = useSelector((state:any) => state.group);
   const {loading: expenseLoading, error: expenseError} = useSelector(
-    state => state.expense,
+    (state:any) => state.expense,
   );
-  const {paymentStatus, loading, error} = useSelector(state => state.friend);
+
 
   const {
     subscription,
     loading: subscriptionLoading,
     error: subscriptionError,
-  } = useSelector(state => state.sub);
+  } = useSelector((state:any) => state.sub);
 
   useEffect(() => {
     console.log('USESUB');
@@ -143,7 +141,7 @@ const GroupScreen: React.FC<GroupScreenProps> = ({navigation}) => {
       adminId: userId,
     };
 
-    dispatch(createGroup(groupData)).then(response => {
+    dispatch(createGroup(groupData)).then((response:any) => {
       if (response.meta.requestStatus === 'fulfilled') {
         Alert.alert('Group Created Successfully!');
         setShowModal(false);
@@ -161,7 +159,7 @@ const GroupScreen: React.FC<GroupScreenProps> = ({navigation}) => {
     setExpenseSelectedFrnds([]);
     setIsGroup(false);
     try {
-      dispatch(fetchFriends(userId)).then(response => {
+      dispatch(fetchFriends(userId)).then((response:any) => {
         console.log('success');
       });
     } catch (error) {
@@ -196,7 +194,7 @@ const GroupScreen: React.FC<GroupScreenProps> = ({navigation}) => {
       };
     }
 
-    dispatch(addExpense(data)).then(response => {
+    dispatch(addExpense(data)).then((response:any) => {
       if (response.meta.requestStatus === 'fulfilled') {
         Alert.alert('Expense Added !!!');
         setShowExpenseModal(false);
@@ -230,7 +228,7 @@ const GroupScreen: React.FC<GroupScreenProps> = ({navigation}) => {
         height: 400,
         cropping: true,
       });
-      const source = {uri: image.path};
+      const source:any = {uri: image.path};
       setImage(source);
     } catch (error) {
       console.log('Error in selecting image:', error);
@@ -244,7 +242,7 @@ const GroupScreen: React.FC<GroupScreenProps> = ({navigation}) => {
         height: 400,
         cropping: true,
       });
-      const source = {uri: image.path};
+      const source:any = {uri: image.path};
 
       setImage(source);
     } catch (error) {
@@ -260,7 +258,7 @@ const GroupScreen: React.FC<GroupScreenProps> = ({navigation}) => {
 
     setShowModal(true);
     try {
-      dispatch(fetchFriends(userId)).then(response => {
+      dispatch(fetchFriends(userId)).then((response:any) => {
         console.log('success');
       });
     } catch (error) {
@@ -268,15 +266,15 @@ const GroupScreen: React.FC<GroupScreenProps> = ({navigation}) => {
     }
   };
 
-  const handleSelection = friendId => {
+  const handleSelection = (friendId:any) => {
     if (selectedFriends.includes(friendId)) {
-      setSelectedFriends(selectedFriends.filter(id => id !== friendId));
+      setSelectedFriends(selectedFriends.filter((id:any) => id !== friendId));
     } else {
       setSelectedFriends([...selectedFriends, friendId]);
     }
   };
 
-  const handleExpenseSelection = item => {
+  const handleExpenseSelection = (item:any) => {
     if (isGroup) {
       setExpenseSelectedFrnds(item.members);
       setExpenseSelectGroup(item._id);
@@ -284,9 +282,9 @@ const GroupScreen: React.FC<GroupScreenProps> = ({navigation}) => {
     } else {
       if (expenseSelectedFrnds.includes(item._id)) {
         setExpenseSelectedFrnds(
-          expenseSelectedFrnds.filter(id => id !== item._id),
+          expenseSelectedFrnds.filter((id:any) => id !== item._id),
         );
-        setExpenseSelect(expenseSelectedFrnds.filter(id => id !== item._id));
+        setExpenseSelect(expenseSelectedFrnds.filter((id:any) => id !== item._id));
       } else {
         setExpenseSelectedFrnds([...expenseSelectedFrnds, item._id]);
         setExpenseSelect([...expenseSelectedFrnds, item._id]);
@@ -305,7 +303,7 @@ const GroupScreen: React.FC<GroupScreenProps> = ({navigation}) => {
         dispatch(fetchGroupPaymentStatus(userId));
       };
       fetchAllData();
-      const unsubscribe = navigation.addListener('tabPress', e => {
+      const unsubscribe = navigation.addListener('tabPress', (e:any) => {
         e.preventDefault();
         setRefresh(!refresh);
       });
@@ -328,9 +326,9 @@ const GroupScreen: React.FC<GroupScreenProps> = ({navigation}) => {
   }, [refresh, userId, fetchGroupPaymentStatus, fetchGroups]);
 
   const combineData = () => {
-    return groups.map(group => {
+    return groups.map((group:any) => {
       const paymentStatusForGroup = groupPaymentStatus.find(
-        status => status.groupId === group._id,
+        (status:any) => status.groupId === group._id,
       );
       return {
         ...group,
@@ -345,27 +343,44 @@ const GroupScreen: React.FC<GroupScreenProps> = ({navigation}) => {
   const combinedData = combineData();
 
   return (
-    <View style={{flex: 1, backgroundColor: '#f8f8f8'}}>
+    <View style={{flex: 1, backgroundColor: 'white'}}>
       {/* <StatusBar backgroundColor={'#D77702'} /> */}
       <StatusBar backgroundColor="#D77702" barStyle="dark-content" />
 
-      <HeaderBar title={'GroupScreen'} />
-
+      <HeaderBar title={'GroupScreen'}  onIconPress={handleModel} />
       <ScrollView style={styles.scrollContainer}>
-        <Pressable>
-          {combinedData.map((item, index) => (
+        {
+          combinedData.length<1 ?
+          <View style={{alignSelf:"center",gap:10,}}>
+
+            <FastImage source={{uri:"https://img.freepik.com/free-vector/hand-drawn-no-data-illustration_23-2150696458.jpg"}} style={{height:400,width:400,top:60}} />
+            <Text style={{fontWeight:"bold",fontSize:38,color:"black",alignSelf:"center",top:2}}>No Groups !</Text>
+          </View>
+        
+          :
+          
+ 
+          <Pressable>
+          {combinedData.map((item:any, index: React.Key | null | undefined) => (
             <GroupBox key={index} item={item} />
           ))}
         </Pressable>
-
-        <View style={styles.container}>
+        
+     
+        }
+     
+        {
+          combinedData.length<1 ?
+          <></>
+          :
+          <View style={styles.container}>
           <TouchableOpacity
             style={styles.buttonContainer}
             onPress={() => handleModel()}>
             <AntDesign name="addusergroup" size={22} color={'#D77702'} />
             <Text style={styles.buttonText}>Create new group</Text>
           </TouchableOpacity>
-        </View>
+        </View>}
       </ScrollView>
 
       <TouchableOpacity
@@ -523,6 +538,7 @@ const GroupScreen: React.FC<GroupScreenProps> = ({navigation}) => {
                 placeholder="Amount"
                 value={amount}
                 onChangeText={setAmount}
+                keyboardType='number-pad'
               />
             </View>
             <Text style={styles.label}>Select Participants/Groups :</Text>
@@ -880,6 +896,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     marginBottom: 10,
+    alignItems:"center"
   },
   subscribeButtonText: {
     color: 'white',
@@ -888,255 +905,3 @@ const styles = StyleSheet.create({
   },
 });
 
-// const handleGroups = async () => {
-//   setExpenseSelectedFrnds([]);
-//   setExpenseSelectGroup('');
-//   setIsGroup(true);
-//   try {
-//     const response = await fetch(
-//       `http://10.0.2.2:8000/chat/group/groups/${userId}`,
-//     );
-//     const data = await response.json();
-
-//     if (response.ok) {
-
-//       setExpenseFriendList(data);
-
-//     }
-//   } catch (error) {
-//     console.log('Error in internal sever', error);
-//   }
-// };
-
-//   const handleAddExpense = async () => {
-
-//     try {
-//       setExpenseDescription('');
-//       setAmount('');
-//       setExpenseSelectedFrnds([]);
-//       let data={}
-// if(isGroup){
-//         data = {
-//         description: expenseDescription,
-//         amount: amount,
-//         payerId: userId,
-//         payeeId: expenseSelectedFrnds,
-//         groupId: expenseSelectGroup,
-//         type:type
-//       };
-//     }
-//     else{
-//         data = {
-//         description: expenseDescription,
-//         amount: amount,
-//         payerId: userId,
-//         payeeId: expenseSelectedFrnds,
-//         type:type
-//       };
-
-//     }
-
-//       const response = await fetch(
-//         'http://10.0.2.2:8000/chat/expense/addExpense',
-//         {
-//           method: 'POST',
-//           headers: {
-//             'Content-Type': 'application/json',
-//           },
-//           body: JSON.stringify(data),
-//         },
-//       );
-
-//       const expense = await response.json();
-
-//       if (response.ok) {
-//         Alert.alert('Expense Added !!!');
-//         setShowExpenseModal(false);
-//         setExpenseDescription('');
-//         setAmount('');
-//         setExpenseSelectedFrnds([]);
-//       }
-//     } catch (error) {
-//       console.log('Error in adding expense', error);
-//     }
-//   };
-
-// const combineData = () => {
-//   const combinedGroups = groups.map(group => {
-//     let groupOwesMe = 0;
-//     let iOweGroup = 0;
-
-//     const membersDetails = group.members.map(member => {
-
-//     //   const friend = friends.find(friend => friend._id === memberId);
-
-//     //   return friend ? {
-//     //     ...friend,
-//     //     friendOwesMe: friend.friendOwesMe || 0,
-//     //     iOweFriend: friend.iOweFriend || 0
-//     //   } : null;
-//     member.map(friend => {
-//       const paymentStatusForFriend = paymentStatus.find(
-//         status => status.friendId === friend._id,
-//       );
-//       return {
-//         ...friend,
-//         friendOwesMe: paymentStatusForFriend
-//           ? paymentStatusForFriend.friendOwesMe
-//           : 0,
-//         iOweFriend: paymentStatusForFriend
-//           ? paymentStatusForFriend.iOweFriend
-//           : 0,
-//       };
-
-//     }).filter(member => member !== null);
-
-//     membersDetails.forEach(member => {
-//       groupOwesMe += member.friendOwesMe;
-//       iOweGroup += member.iOweFriend;
-//     });
-
-//     return {
-//       ...group,
-//       membersDetails: membersDetails,
-//       groupOwesMe: groupOwesMe,
-//       iOweGroup: iOweGroup
-//     };
-// });
-
-//   return combinedGroups;
-// })
-// }
-
-// const combinedData = combineData();
-
-// const combineData = () => {
-//   const combinedGroups = groups.map(group => {
-//     let groupOwesMe = 0;
-//     let iOweGroup = 0;
-
-//     const membersDetails = group.members.map(member => {
-//       const paymentStatusForFriend = paymentStatus.find(
-//         status => status.friendId === member._id,
-//       );
-//       return {
-//         ...member,
-//         friendOwesMe: paymentStatusForFriend ? paymentStatusForFriend.friendOwesMe : 0,
-//         iOweFriend: paymentStatusForFriend ? paymentStatusForFriend.iOweFriend : 0,
-//       };
-//     });
-
-//     membersDetails.forEach(member => {
-//       groupOwesMe += member.friendOwesMe;
-//       iOweGroup += member.iOweFriend;
-//     });
-
-//     return {
-//       ...group,
-//       membersDetails: membersDetails,
-//       groupOwesMe: groupOwesMe,
-//       iOweGroup: iOweGroup
-//     };
-//   });
-
-//   return combinedGroups;
-// };
-
-// const userGroups = async () => {
-//   try {
-//     const response = await fetch(`http://10.0.2.2:8000/chat/group/groups/${userId}`);
-//     const data = await response.json();
-
-//     if (response.ok) {
-
-//       setGroupList(data);
-
-//     }
-//   } catch (error) {
-//     console.log("Error in internal sever", error);
-//   }
-// };
-
-// useEffect(() => {
-
-//   userGroups();
-
-//   console.log('use')
-// }, []);
-
-// const handleModel = async () => {
-//   setShowModal(true);
-//  try {
-//     const response = await fetch(`http://10.0.2.2:8000/chat/user/accepted-friends/${userId}`);
-//     const data = await response.json();
-//     console.log(data,"{{}}")
-//     if (response.ok) {
-
-//       setFriendList(data);
-
-//     }
-//   }
-//    catch(error) {
-//     console.log("internal server problem", error);
-//   }
-//}
-
-// const handleFriends = async () => {
-//   setExpenseSelect([]);
-//   setExpenseSelectedFrnds([]);
-//   setIsGroup(false);
-//   try {
-//     const response = await fetch(
-//       `http://10.0.2.2:8000/chat/user/accepted-friends/${userId}`,
-//     );
-//     const data = await response.json();
-
-//     if (response.ok) {
-
-//       setExpenseFriendList(data);
-
-//     }
-//   } catch (error) {
-//     console.log('internal server problem', error);
-//   }
-// };
-
-// const handleCreateGroup=async()=>{
-
-//   try{
-
-//     console.log({groupName,groupDescription})
-
-//     const groupData={
-//       name:groupName,
-//       description:groupDescription,
-//       members:[...selectedFriends,userId]
-//     }
-//     console.log("{{+",selectedFriends.length,"988786")
-//     if(!groupName || selectedFriends.length<1){
-//       return Alert.alert("Please enter Mandatory details !!!")
-//      }
-
-//     const response=await axios.post('http://10.0.2.2:8000/chat/group/createGroup',groupData)
-//     console.log("FF")
-//     console.log(response)
-
-//     if(response){
-//       console.log("OKKK")
-//       Alert.alert('Group Created Successfully !')
-//       setShowModal(false)
-//       setGroupName('')
-//       setGroupDescription('')
-//       setSelectedFriends([])
-
-//     }
-
-//     userGroups()
-
-//   }
-//   catch(error){
-//     Alert.alert('Group Already Exists with same Name and Members !')
-//     console.log("ERROR in creating group internal error",error)
-//   }
-
-// }

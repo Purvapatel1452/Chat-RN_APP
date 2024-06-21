@@ -1,9 +1,8 @@
-const stripe = require("stripe")(
-  "sk_test_51P6pcYSCdNlkqtTKEbkko3R7u9AU05pNEw9TKpeAtiEze3NmZlsWaun94sEQehiPPdlUouvIJ5d2thhp2527uaaJ00WSnKy45N"
-);
+
+const stripe = require("stripe")("sk_test_51P6pcYSCdNlkqtTKEbkko3R7u9AU05pNEw9TKpeAtiEze3NmZlsWaun94sEQehiPPdlUouvIJ5d2thhp2527uaaJ00WSnKy45N");
 
 const stripeIntent = async (req, res) => {
-  console.log("patyment");
+  console.log("patyment",process.env.STRIPE_SECRET_KEY);
 
   try {
     const { amount } = req.body;

@@ -1,86 +1,50 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React, { useContext, useDebugValue, useEffect,useState } from 'react'
+import {StyleSheet, Text, View} from 'react-native';
+import React, {useContext, useDebugValue, useEffect, useState} from 'react';
 
-import axios from 'axios'
-import FriendRequest from '../components/FriendRequest'
-import HeaderBar from '../components/HeaderBar'
-import { useDispatch, useSelector } from 'react-redux'
-import { fetchFriendRequests } from '../redux/slices/friendSlice'
+
+import FriendRequest from '../components/FriendRequest';
+import HeaderBar from '../components/HeaderBar';
+import {useDispatch, useSelector} from 'react-redux';
+import {fetchFriendRequests} from '../redux/slices/friendSlice';
+import FastImage from 'react-native-fast-image';
 
 const FriendsScreen = () => {
+  const dispatch = useDispatch();
+  const {userId} = useSelector((state:any) => state.auth);
+  const {friendRequests, loading, error} = useSelector((state:any) => state.friend);
 
-  const dispatch=useDispatch()
-  const {userId}=useSelector(state=>state.auth)
-  const {friendRequests,loading,error}=useSelector((state)=>state.friend)
+  const [friendRequest, setFriendRequest] = useState([]);
 
-
-
-    const [friendRequest,setFriendRequest]=useState([])
-    
-
-    
-    useEffect(()=>{
-
-      dispatch(fetchFriendRequests(userId))
-
-  },[])
-
-    // useEffect(()=>{
-
-    //     fetchFriendRequest()
-
-    // },[])
-
-//     const fetchFriendRequest=async()=>{
-
-//         try{
-
-// console.log(userId)
-//             const response=await axios.get(`http://10.0.2.2:8000/chat/user/friend-request/${userId}`)
-//             console.log("RESPPP",response)
-
-//             if(response.status===200){
-//                 const friendRequestsData=response.data.map((friendRequest:any)=>({
-
-//                     _id:friendRequest._id,
-//                     name:friendRequest.name,
-//                     email:friendRequest.email,
-//                     image:friendRequest.image
-
-//                 }))
-
-//                 console.log(friendRequestsData)
-
-//                 setFriendRequest(friendRequestsData)
-//             }
-//         }
-//         catch{
-
-//         }
-
-//     }
-   
-
+  useEffect(() => {
+    dispatch(fetchFriendRequests(userId));
+  }, []);
 
   return (
-    <View>
-      
-      <HeaderBar title={'FriendRequest'} />
-   
+    <View style={{backgroundColor:"white"}}>
+      <HeaderBar title={'FriendRequest'} onIconPress={undefined} />
 
       {
-        friendRequests.map((item,index)=>
-        <FriendRequest 
-            key={index}
-            item={item}
-            friendRequest={friendRequest}
-            setFriendRequest={setFriendRequest} navigation={undefined}        />
-        )
-      }
+        friendRequests.length<1 ?
+        <View style={{alignSelf:"center",gap:10,}}>
+
+        <FastImage source={{uri:"https://img.freepik.com/free-vector/hand-drawn-no-data-illustration_23-2150696458.jpg"}} style={{height:400,width:400,top:60}} />
+        <Text style={{fontWeight:"bold",fontSize:38,color:"black",alignSelf:"center",top:2}}>No Requests !</Text>
+      </View>
+        :
+      
+      friendRequests.map((item: { _id: string; name: string; image: string; }, index: React.Key | null | undefined) => (
+        <FriendRequest
+          key={index}
+          item={item}
+          friendRequest={friendRequest}
+          setFriendRequest={setFriendRequest}
+        
+        />
+      ))}
     </View>
-  )
-}
+  );
+};
 
-export default FriendsScreen
+export default FriendsScreen;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});

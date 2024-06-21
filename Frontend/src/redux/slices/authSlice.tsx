@@ -1,11 +1,10 @@
-import { BASE_URL } from '@env';
+import {BASE_URL} from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import axios from 'axios';
-import { decode } from 'base-64';
-import { Alert } from 'react-native';
+import {decode} from 'base-64';
+import {Alert} from 'react-native';
 
-// Define interfaces for the state and the async thunk payload
 interface AuthState {
   userId: string | null;
   token: string | null;
@@ -23,18 +22,16 @@ interface UserData {
   password: string;
 }
 
-// Async thunk for user login
-export const login = createAsyncThunk<LoginResponse, UserData, { rejectValue: string }>(
+export const login: any = createAsyncThunk<any>(
   'auth/login',
-  async (userData, { rejectWithValue }) => {
+  async (userData, {rejectWithValue}) => {
     try {
       console.log('LOGI');
-      console.log(BASE_URL,';;;fdgg;yguhfdhiyl');
-   
-      const response = await axios.post(`${BASE_URL}/user/login`, userData);
-     
-      const token = response.data.data;
+      console.log(BASE_URL, ';jdrthsferureg;ygh67uhfdhiyl');
 
+      const response = await axios.post(`${BASE_URL}/user/login`, userData);
+
+      const token = response.data.data;
 
       console.log(token, 'token');
 
@@ -46,17 +43,16 @@ export const login = createAsyncThunk<LoginResponse, UserData, { rejectValue: st
 
         await AsyncStorage.setItem('authToken', token);
 
-        return { userId, token };
+        return {userId, token};
       }
     } catch (error: any) {
-      console.log(error.response.data.message,"///////")
-      Alert.alert("Login Error !!!",error.response.data.message.toString())
+      console.log(error.response.data.message, '///////');
+      Alert.alert('Login Error !!!', error.response.data.message.toString());
       return rejectWithValue(error.response.data.message);
     }
-  }
+  },
 );
 
-// Initial state for the auth slice
 const initialState: AuthState = {
   userId: null,
   token: null,
@@ -64,50 +60,35 @@ const initialState: AuthState = {
   error: null,
 };
 
-// Auth slice
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    clearUser: (state) => {
+    clearUser: state => {
       state.userId = null;
       state.token = null;
     },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
-      .addCase(login.pending, (state) => {
+      .addCase(login.pending, state => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(login.fulfilled, (state, action: PayloadAction<LoginResponse>) => {
-        state.loading = false;
-        state.userId = action.payload.userId;
-        state.token = action.payload.token;
-      })
-      .addCase(login.rejected, (state, action: PayloadAction<string | undefined>) => {
+      .addCase(
+        login.fulfilled,
+        (state, action: PayloadAction<LoginResponse>) => {
+          state.loading = false;
+          state.userId = action.payload.userId;
+          state.token = action.payload.token;
+        },
+      )
+      .addCase(login.rejected, (state, action: PayloadAction<any>) => {
         state.loading = false;
         state.error = action.payload || 'Login failed';
       });
   },
 });
 
-export const { clearUser } = authSlice.actions;
+export const {clearUser} = authSlice.actions;
 export default authSlice.reducer;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

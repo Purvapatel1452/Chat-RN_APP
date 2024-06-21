@@ -203,8 +203,8 @@ const uploadImage = async (req, res) => {
 
 const getUserDetails = async (req, res) => {
   try {
-    console.log("++");
-    const { userId } = req.params;
+    console.log("++",req.body);
+    const {userId}  = req.body;
     console.log("++", userId);
     const details = await User.findById(userId);
 
