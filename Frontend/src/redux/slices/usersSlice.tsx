@@ -11,7 +11,7 @@ export const fetchUsers: any = createAsyncThunk(
   'users/fetchUsers',
   async (userId, {rejectWithValue}) => {
     try {
-      console.log(BASE_URL, '{dsdcsdcjderywer4tewfugdergewd');
+      console.log(BASE_URL, '{dsdcsdcjdertg67ty56uywer4tewfugdergewd');
       const token = await getToken();
       const response = await axios.get(`${BASE_URL}/user/users/${userId}`, {
         headers: {
@@ -30,7 +30,7 @@ export const fetchUserDetails: any = createAsyncThunk(
   async (userId, {rejectWithValue}) => {
     try {
       const token = await getToken();
-      console.log(BASE_URL, 'IIDDD');
+      console.log(BASE_URL, 'II5ththt6u7yDbu7uDD');
       console.log(userId, 'User ID');
 
       const response = await fetch(`${BASE_URL}/user/userDetails`, {
@@ -43,7 +43,7 @@ export const fetchUserDetails: any = createAsyncThunk(
       });
 
       if (!response.ok) {
-        // If the response status is not OK, throw an error with the status text
+      
         throw new Error('Failed to fetch user details');
       }
 
@@ -51,7 +51,7 @@ export const fetchUserDetails: any = createAsyncThunk(
       return data;
     } catch (error: any) {
       console.error('Error fetching user details:', error);
-      // If there's an error, return the error message using rejectWithValue
+     
       return rejectWithValue(error.message);
     }
   },
@@ -61,7 +61,7 @@ export const updateUserProfile: any = createAsyncThunk<any, any>(
   'user/updateProfile',
   async ({userId, name, mobile}, {rejectWithValue}) => {
     try {
-      console.log(BASE_URL, '{kdfvsdcrjxewhecwd');
+      console.log(BASE_URL, '{kdfvsdcthurj65g7xewhecwd');
       const token = await getToken();
       const response = await axios.post(
         `${BASE_URL}/user/editProfile`,
@@ -87,7 +87,7 @@ export const deleteUserAccount: any = createAsyncThunk<any, any>(
   'users/deleteUserAccount',
   async ({userId}, {rejectWithValue}) => {
     try {
-      console.log(BASE_URL, '{dcrefcjgexewfdeefwkjcdcghd');
+      console.log(BASE_URL, '{dcrefcjthy64ygexewfdeefwkjcdcghd');
       const token = await getToken();
       const response = await axios.delete(
         `${BASE_URL}/user/deleteUser/${userId}`,
@@ -108,7 +108,7 @@ export const recoverUserAccount = createAsyncThunk<any, any>(
   'users/recoverUserAccount',
   async ({email, password}, {rejectWithValue}) => {
     try {
-      console.log(BASE_URL, '{dcefwscdewfdfrfiuy8');
+      console.log(BASE_URL, '{dcefwsrthy7ucdewfdfrfiuy8');
       const token = await getToken();
       const response = await axios.post(
         `${BASE_URL}/recoverUser`,

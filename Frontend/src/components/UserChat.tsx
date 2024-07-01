@@ -2,8 +2,10 @@ import React from 'react';
 import {Pressable, StyleSheet, Text, View, Image} from 'react-native';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import FastImage from 'react-native-fast-image';
+import { useSelector } from 'react-redux';
 
 interface User {
+  email: any;
   _id: string;
   name: string;
   image: string;
@@ -14,11 +16,14 @@ interface User {
 interface UserChatProps {
   item: User;
   navigateMessages: () => any;
+  groupData:any
 }
 
-const UserChat: React.FC<UserChatProps> = ({item, navigateMessages}) => {
+const UserChat: React.FC<UserChatProps> = ({item, navigateMessages,groupData}) => {
   const navigation = useNavigation<NavigationProp<any>>();
 
+  const userId=useSelector((state:any)=>state.auth)
+  console.log(userId,"FIRST")
   const netBalance = item.friendOwesMe - item.iOweFriend;
   let paymentStatusMessage = '';
   let amount = '';
@@ -47,8 +52,15 @@ const UserChat: React.FC<UserChatProps> = ({item, navigateMessages}) => {
       )}
 
       <View style={styles.textContainer}>
-        <Text style={styles.textName}>{item.name}</Text>
-        <Text style={styles.textLast}>Last chat comes here . . . </Text>
+        {
+          item._id==userId.userId ?
+          <Text style={styles.textName}>You</Text>
+          :
+          <Text style={styles.textName}>{item.name}</Text>
+
+        }
+      
+        <Text style={styles.textLast}>{item.email} </Text>
       </View>
       <View style={styles.paymentStatusContainer}>
         <Text
@@ -71,6 +83,15 @@ const UserChat: React.FC<UserChatProps> = ({item, navigateMessages}) => {
           {amount}
         </Text>
       </View>
+      {groupData?
+       ( groupData.admin===item._id ?
+        <Text>Admin</Text>
+        :
+        <></>)
+        :
+        <></>
+      }
+     
     </Pressable>
   );
 };

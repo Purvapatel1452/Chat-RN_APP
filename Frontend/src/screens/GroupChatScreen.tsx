@@ -32,7 +32,7 @@ import HeaderBar from '../components/HeaderBar';
 
 import ExpenseBox from '../components/ExpenseBox';
 import {useDispatch, useSelector} from 'react-redux';
-import {fetchMessages, sendMessage} from '../redux/slices/chatSlice';
+
 import {fetchGroupData, fetchGroupExpenses} from '../redux/slices/groupSlice';
 import storage from '@react-native-firebase/storage';
 import Modal from 'react-native-modal';
@@ -41,8 +41,11 @@ import HeaderChatBar from '../components/HeaderChatBar';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import FastImage from 'react-native-fast-image';
 
+import firebase from '../firebase/firebaseConfig';
+import {fetchMessages, sendMessage} from '../redux/slices/chatSlice';
+
 const GroupChatScreen = ({navigation}: any) => {
-  console.log(BASE_URL,"gfy");
+  console.log(BASE_URL, 'gfy');
   const [showEmojiSelector, setShowEmojiSelector] = useState(false);
 
   const route = useRoute();
@@ -51,20 +54,22 @@ const GroupChatScreen = ({navigation}: any) => {
   const [selectedImage, setSelectedImage] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
 
-  const scrollViewRef = useRef(null);
+  const scrollViewRef = useRef<any>(null);
 
   const [isExpense, setIsExpense] = useState(true);
   const [expenseList, setExpenseList] = useState([]);
 
+  const [load, setLoad] = useState(false);
+
   const dispatch = useDispatch();
-  const {userId} = useSelector((state:any) => state.auth);
-  const {messages, loading, error} = useSelector((state:any) => state.chat);
+  const {userId} = useSelector((state: any) => state.auth);
+  const {messages, loading, error} = useSelector((state: any) => state.chat);
   const {
     groupExpenses,
     groupData,
     loading: expenseLoading,
     error: expenseError,
-  } = useSelector((state:any) => state.group);
+  } = useSelector((state: any) => state.group);
 
   const handleEmojiPress = () => {
     setShowEmojiSelector(!showEmojiSelector);
@@ -78,24 +83,44 @@ const GroupChatScreen = ({navigation}: any) => {
     setIsExpense(false);
   };
 
+  let mem: {id: any; name: any}[] = [];
+
+  if (groupData) {
+    groupData.members.map((member: any) => {
+      mem.push({id: member._id, name: member.name});
+    });
+    console.log('GGRR', mem);
+  }
+
   useEffect(() => {
-    dispatch(fetchMessages({userId, groupId}));
+    dispatch(fetchMessages({userId, groupId: groupId}));
+
+    const messagesRef = firebase.database().ref(`chats/${groupId}`);
+
+    const handleNewMessage = (snapshot: {val: () => any}) => {
+      const newMessage = snapshot.val();
+      dispatch(fetchMessages({userId, groupId: groupId}));
+      scrollToBottom();
+    };
+
+    messagesRef.on('child_added', handleNewMessage);
+
     dispatch(fetchGroupExpenses(groupId));
     dispatch(fetchGroupData(groupId));
+
+    return () => {
+      messagesRef.off('child_added', handleNewMessage);
+    };
   }, [dispatch, userId, groupId]);
 
   const scrollToBottom = () => {
     setTimeout(() => {
       scrollViewRef.current?.scrollToEnd({animated: true});
-    }, 800);
+    }, 1000);
   };
 
-  const handleSend:any = async (messageType: any, imageUri: any) => {
+  const handleSend: any = async (messageType: any, imageUri: any) => {
     try {
-      console.log('SENNDD');
-
-      //check msg type image or text
-      let formData = {};
       if (messageType == 'image') {
         const {uri} = imageUri;
 
@@ -111,59 +136,45 @@ const GroupChatScreen = ({navigation}: any) => {
         try {
           await task;
           const url = await storage().ref(`chat/${filename}`).getDownloadURL();
-          console.log(url);
 
-          console.log(url, 'URLRLRL');
-          formData = {
-            senderId: userId,
-            groupId: groupId,
-            messageType: messageType,
-            messageText: message,
-            imageUrl: url,
-          };
-
-          console.log('IIIOOPPP', formData);
+          dispatch(
+            sendMessage({
+              userId,
+              groupId: groupId,
+              messageType: messageType,
+              imageUrl: url,
+            }),
+          );
         } catch (e) {
           console.error(e);
         }
       } else {
-        console.log('1111');
-        formData = {
-          senderId: userId,
-          groupId: groupId,
-          messageType: messageType,
-          messageText: message,
-          imageUrl: null,
-        };
-      }
-
-      console.log({formData});
-
-      dispatch(sendMessage({formData})).then((response:any) => {
-        console.log(response, '))))))');
-      });
-
-      if (messageType == 'image') {
-        setTimeout(() => {
-          dispatch(fetchMessages({userId, groupId: groupId}));
-        }, 2000);
-      } else {
-        setTimeout(() => {
-          dispatch(fetchMessages({userId, groupId: groupId}));
-        }, 1000);
+        dispatch(
+          sendMessage({
+            userId,
+            groupId: groupId,
+            messageType: messageType,
+            message,
+          }),
+        );
       }
 
       setMessage('');
       setSelectedImage('');
 
+      scrollViewRef.current?.scrollToEnd({animated: true});
       scrollToBottom();
+      setLoad(true);
+      setTimeout(() => {
+        setLoad(false);
+      }, 2000);
     } catch (err) {
       console.log('error in sending msg', err);
     }
   };
 
   const formatTime = (time: any) => {
-    const options:any = {hour: 'numeric', minute: 'numeric'};
+    const options: any = {hour: 'numeric', minute: 'numeric'};
     return new Date(time).toLocaleString('en-US', options);
   };
 
@@ -199,180 +210,215 @@ const GroupChatScreen = ({navigation}: any) => {
     setModalVisible(!isModalVisible);
   };
 
+  const sortedMessages = [...messages].sort(
+    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+  );
+
   return (
     <SafeAreaView style={{flex: 1}}>
       <HeaderChatBar title={'GroupChatScreen'} id={groupId} />
 
       <View style={styles.pressableContainer}>
-      <TouchableOpacity  style={styles.pressableContainer1} onPress={() => isexpense()}>
-        <View>
-         
+        <TouchableOpacity
+          style={styles.pressableContainer1}
+          onPress={() => isexpense()}>
+          <View>
             <Text style={{color: 'black'}}>Expenses</Text>
-                 </View>
-                 </TouchableOpacity>
-                 <TouchableOpacity style={styles.pressableContainer2} onPress={() => isChat()}>
-        <View >
-         
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.pressableContainer2}
+          onPress={() => isChat()}>
+          <View>
             <Text style={{color: 'black'}}>Chat</Text>
-        
-        </View>
+          </View>
         </TouchableOpacity>
       </View>
       {isExpense ? (
         <ScrollView>
           <Pressable>
             {expenseLoading ? (
-              <ActivityIndicator />
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#0000ff" />
+              </View>
             ) : expenseError ? (
               <Text>Error loading expenses: {expenseError}</Text>
             ) : (
-              groupExpenses.map((item:any, index: React.Key | null | undefined) => (
-                <ExpenseBox key={index} item={item} />
-              ))
+              groupExpenses.map(
+                (item: any, index: React.Key | null | undefined) => (
+                  <ExpenseBox key={index} item={item} />
+                ),
+              )
             )}
           </Pressable>
         </ScrollView>
       ) : (
         <KeyboardAvoidingView style={styles.keyboardContainer}>
           <ScrollView ref={scrollViewRef}>
-            {messages.map((item: any, index: React.Key | null | undefined) => {
-              if (item.messageType == 'text') {
-                return (
-                  <Pressable
-                    key={index}
-                    style={[
-                      !item.senderId._id
-                        ? {
-                            alignSelf: 'flex-end',
-                            backgroundColor: '#DCF8C6',
-                            padding: 8,
-                            maxWidth: '60%',
-                            borderRadius: 7,
-                            margin: 10,
-                          }
-                        : item.senderId._id == userId
-                        ? {
-                            alignSelf: 'flex-end',
-                            backgroundColor: '#DCF8C6',
-                            padding: 8,
-                            maxWidth: '60%',
-                            borderRadius: 7,
-                            margin: 10,
-                          }
-                        : {
-                            alignSelf: 'flex-start',
-                            backgroundColor: 'white',
-                            padding: 8,
-                            margin: 10,
-                            borderRadius: 7,
-                            maxWidth: '60%',
-                          },
-                    ]}>
-                    {item.senderId._id == userId ? (
-                      <>
-                        <Text style={styles.textMessage}>{item.message}</Text>
-                        <Text style={styles.textMsgTime}>
-                          {formatTime(item.timeStamp)}
-                        </Text>
-                      </>
-                    ) : (
-                      <>
-                        <Text style={styles.senderName}>
-                          {item.senderId.name}
-                        </Text>
-                        <Text style={styles.textMessage}>{item.message}</Text>
-                        <Text style={styles.textMsgTime}>
-                          {formatTime(item.timeStamp)}
-                        </Text>
-                      </>
-                    )}
-                  </Pressable>
-                );
-              }
-              if (item.messageType === 'image' ?? !loading) {
-                const source = item.imageUrl;
-
-                return (
-                  <Pressable
-                    key={index}
-                    style={[
-                      !item.senderId._id
-                        ? {
-                            alignSelf: 'flex-end',
-                            backgroundColor: '#DCF8C6',
-                            padding: 8,
-                            maxWidth: '60%',
-                            borderRadius: 7,
-                            margin: 10,
-                          }
-                        : item.senderId._id == userId
-                        ? {
-                            alignSelf: 'flex-end',
-                            backgroundColor: '#DCF8C6',
-                            padding: 8,
-                            maxWidth: '60%',
-                            borderRadius: 7,
-                            margin: 10,
-                          }
-                        : {
-                            alignSelf: 'flex-start',
-                            backgroundColor: 'white',
-                            padding: 8,
-                            margin: 10,
-                            borderRadius: 7,
-                            maxWidth: '60%',
-                          },
-                    ]}>
-                    <View>
-                      {item.senderId._id == userId ? (
+            {sortedMessages.map(
+              (item: any, index: React.Key | null | undefined) => {
+                if (item.messageType == 'text') {
+                  return (
+                    <Pressable
+                      key={index}
+                      style={[
+                        !item.senderId
+                          ? {
+                              alignSelf: 'flex-end',
+                              backgroundColor: '#DCF8C6',
+                              padding: 8,
+                              maxWidth: '60%',
+                              borderRadius: 7,
+                              margin: 10,
+                            }
+                          : item.senderId == userId
+                          ? {
+                              alignSelf: 'flex-end',
+                              backgroundColor: '#DCF8C6',
+                              padding: 8,
+                              maxWidth: '60%',
+                              borderRadius: 7,
+                              margin: 10,
+                            }
+                          : {
+                              alignSelf: 'flex-start',
+                              backgroundColor: 'white',
+                              padding: 8,
+                              margin: 10,
+                              borderRadius: 7,
+                              maxWidth: '60%',
+                            },
+                      ]}>
+                      {item.senderId == userId ? (
                         <>
-                          <FastImage
-                            source={{uri: source}}
-                            style={{width: 200, height: 200, borderRadius: 7}}
-                          />
-                          <Text
-                            style={{
-                              textAlign: 'right',
-                              fontSize: 9,
-                              position: 'absolute',
-                              right: 10,
-                              bottom: 7,
-                              color: 'white',
-                              marginTop: 5,
-                            }}>
-                            {formatTime(item?.timeStamp)}
+                          <Text style={styles.senderName}>
+                            {mem.map(m => {
+                              if (item.senderId === m.id) {
+                                return 'You';
+                              }
+                            })}
+                          </Text>
+
+                          <Text style={styles.textMessage}>{item.message}</Text>
+                          <Text style={styles.textMsgTime}>
+                            {formatTime(item.timestamp)}
                           </Text>
                         </>
                       ) : (
                         <>
                           <Text style={styles.senderName}>
-                            {item.senderId.name}
+                            {mem.map(m => {
+                              if (item.senderId === m.id) {
+                                return m.name;
+                              }
+                            })}
                           </Text>
-                          <FastImage
-                            source={{uri: source}}
-                            style={{width: 200, height: 200, borderRadius: 7}}
-                          />
-                          <Text
-                            style={{
-                              textAlign: 'right',
-                              fontSize: 9,
-                              position: 'absolute',
-                              right: 10,
-                              bottom: 7,
-                              color: 'white',
-                              marginTop: 5,
-                            }}>
-                            {formatTime(item?.timeStamp)}
+
+                          <Text style={styles.textMessage}>{item.message}</Text>
+                          <Text style={styles.textMsgTime}>
+                            {formatTime(item.timestamp)}
                           </Text>
                         </>
                       )}
-                    </View>
-                  </Pressable>
-                );
-              } else {
-                return <ActivityIndicator />;
-              }
-            })}
+                    </Pressable>
+                  );
+                }
+                if (item.messageType === 'image' ?? !loading) {
+                  const source = item.imageUrl;
+
+                  return (
+                    <Pressable
+                      key={index}
+                      style={[
+                        !item.senderId
+                          ? {
+                              alignSelf: 'flex-end',
+                              backgroundColor: '#DCF8C6',
+                              padding: 8,
+                              maxWidth: '60%',
+                              borderRadius: 7,
+                              margin: 10,
+                            }
+                          : item.senderId == userId
+                          ? {
+                              alignSelf: 'flex-end',
+                              backgroundColor: '#DCF8C6',
+                              padding: 8,
+                              maxWidth: '60%',
+                              borderRadius: 7,
+                              margin: 10,
+                            }
+                          : {
+                              alignSelf: 'flex-start',
+                              backgroundColor: 'white',
+                              padding: 8,
+                              margin: 10,
+                              borderRadius: 7,
+                              maxWidth: '60%',
+                            },
+                      ]}>
+                      <View>
+                        {item.senderId == userId ? (
+                          <>
+                            <Text style={styles.senderName}>
+                              {mem.map(m => {
+                                if (item.senderId === m.id) {
+                                  return 'You';
+                                }
+                              })}
+                            </Text>
+                            <FastImage
+                              source={{uri: source}}
+                              style={{width: 200, height: 200, borderRadius: 7}}
+                            />
+                            <Text
+                              style={{
+                                textAlign: 'right',
+                                fontSize: 9,
+                                position: 'absolute',
+                                right: 10,
+                                bottom: 7,
+                                color: 'white',
+                                marginTop: 5,
+                              }}>
+                              {formatTime(item?.timestamp)}
+                            </Text>
+                          </>
+                        ) : (
+                          <>
+                            <Text style={styles.senderName}>
+                              {mem.map(m => {
+                                if (item.senderId === m.id) {
+                                  return m.name;
+                                }
+                              })}
+                            </Text>
+                            <FastImage
+                              source={{uri: source}}
+                              style={{width: 200, height: 200, borderRadius: 7}}
+                            />
+                            <Text
+                              style={{
+                                textAlign: 'right',
+                                fontSize: 9,
+                                position: 'absolute',
+                                right: 10,
+                                bottom: 7,
+                                color: 'white',
+                                marginTop: 5,
+                              }}>
+                              {formatTime(item?.timestamp)}
+                            </Text>
+                          </>
+                        )}
+                      </View>
+                    </Pressable>
+                  );
+                } else {
+                  return <ActivityIndicator size="large" color="#0000ff" />;
+                }
+              },
+            )}
           </ScrollView>
 
           <View
@@ -410,7 +456,6 @@ const GroupChatScreen = ({navigation}: any) => {
                 size={24}
                 color="gray"
               />
-
             </View>
 
             <Pressable
@@ -423,7 +468,7 @@ const GroupChatScreen = ({navigation}: any) => {
           {showEmojiSelector && (
             <EmojiSelector
               style={{height: 250}}
-              onEmojiSelected={emoji => {
+              onEmojiSelected={(emoji: any) => {
                 setMessage(prevMessage => prevMessage + emoji);
               }}
             />
@@ -531,6 +576,11 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     fontWeight: '600',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   pressableContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -542,7 +592,6 @@ const styles = StyleSheet.create({
     borderColor: '#D0D0D0',
     padding: 10,
     justifyContent: 'center',
-    
   },
   pressableContainer1: {
     flex: 1,
@@ -557,7 +606,7 @@ const styles = StyleSheet.create({
     padding: 5,
     textAlign: 'center',
     justifyContent: 'center',
-    borderRadius:10,
+    borderRadius: 10,
     marginTop: -5,
     height: 40,
   },
@@ -574,7 +623,7 @@ const styles = StyleSheet.create({
     padding: 5,
     textAlign: 'center',
     justifyContent: 'center',
-    borderRadius:10,
+    borderRadius: 10,
     marginTop: -5,
     height: 40,
   },

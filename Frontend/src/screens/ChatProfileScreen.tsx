@@ -240,6 +240,7 @@ console.log(task,"TASK")
               <UserChat
                 key={index}
                 item={item}
+                groupData={groupData}
                 navigateMessages={() => {
                   navigation.navigate('Messages', {recepientId: item._id});
                 }}

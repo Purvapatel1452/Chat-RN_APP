@@ -51,7 +51,7 @@ const createToken = (userId) => {
 
 //registering user
 const registerUser = async (req, res) => {
-  const { name, email, mobile, password } = req.body;
+  const { name, email, mobile, password, fcmToken } = req.body;
 
   const oldUser = await User.findOne({ email: email });
 
@@ -68,6 +68,7 @@ const registerUser = async (req, res) => {
     email,
     mobile,
     password: encryptedPassword,
+    fcmToken
   });
 
   //save the user to the db

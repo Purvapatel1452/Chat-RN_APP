@@ -1,6 +1,7 @@
 import {BASE_URL} from '@env';
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import axios from 'axios';
+import { getToken } from '../../../NotificationService';
 
 export const sendOtp: any = createAsyncThunk(
   'signUp/sendOtp',
@@ -55,6 +56,7 @@ const signUpSlice = createSlice({
       mobile: '',
       password: '',
       otp: '',
+      fcmToken:getToken()
     },
     nameVerify: false,
     emailVerify: false,

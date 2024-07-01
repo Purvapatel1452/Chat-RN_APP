@@ -40,6 +40,9 @@ import storage from '@react-native-firebase/storage';
 import Modal from 'react-native-modal';
 import HeaderChatBar from '../components/HeaderChatBar';
 import FastImage from 'react-native-fast-image';
+import firebase from '../firebase/firebaseConfig';
+import { showNotification } from '../../NotificationService';
+
 
 const ChatMessageScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
@@ -53,6 +56,7 @@ const ChatMessageScreen = () => {
 
   const [isExpense, setIsExpense] = useState(true);
   const [expenseList, setExpenseList] = useState([]);
+  
 
   const scrollViewRef = useRef<any>(null);
 
@@ -81,9 +85,29 @@ const ChatMessageScreen = () => {
 
   useEffect(() => {
     dispatch(fetchMessages({userId, recepientId}));
+
+    const chatId = userId > recepientId ? `${userId}_${recepientId}` : `${recepientId}_${userId}`;
+    const messagesRef = firebase.database().ref(`chats/${chatId}`);
+
+    const handleNewMessage = (snapshot: { val: () => any; }) => {
+      const newMessage = snapshot.val();
+      if (newMessage) {
+        dispatch(fetchMessages({ userId, recepientId }));
+        scrollToBottom();
+      }
+     
+    };
+
+    messagesRef.on('child_added', handleNewMessage);
+
     dispatch(fetchUserExpenses({userId, recepientId}));
     dispatch(fetchRecepientData(recepientId));
-    scrollToBottom();
+    // scrollToBottom();
+
+    return () => {
+      messagesRef.off('child_added', handleNewMessage);
+    };
+    
   }, [dispatch, userId, recepientId]);
 
   const scrollToBottom = () => {
@@ -99,8 +123,6 @@ const ChatMessageScreen = () => {
 
   const handleSend: any = async (messageType: any, imageUri: any) => {
     try {
-      //check msg type image or text
-      let formData = {};
 
       if (messageType == 'image') {
         const {uri} = imageUri;
@@ -116,42 +138,25 @@ const ChatMessageScreen = () => {
           await task;
           const url = await storage().ref(`chat/${filename}`).getDownloadURL();
 
-          formData = {
-            senderId: userId,
-            recepientId: recepientId,
-            messageType: messageType,
-            messageText: message,
-            imageUrl: url,
-          };
+          dispatch(sendMessage({ userId, recepientId,messageType:messageType, imageUrl:url }));
+      
+         
         } catch (e) {
           console.error(e);
         }
       } else {
-        formData = {
-          senderId: userId,
-          recepientId: recepientId,
-          messageType: messageType,
-          messageText: message,
-          imageUrl: null,
-        };
+        dispatch(sendMessage({ userId, recepientId,messageType:messageType, message }));
+  
       }
-
-      dispatch(sendMessage({formData})).then((response: any) => {});
-
-      if (messageType == 'image') {
-        setTimeout(() => {
-          dispatch(fetchMessages({userId, recepientId: recepientId}));
-        }, 2000);
-      } else {
-        setTimeout(() => {
-          dispatch(fetchMessages({userId, recepientId: recepientId}));
-        }, 1000);
-      }
-
+      showNotification(recepientDatas.name, message);
+  
       setMessage('');
       setSelectedImage('');
 
-      scrollToBottom();
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+      scrollToBottom()
+     
+    
     } catch (err) {
       console.log('error in sending msg', err);
     }
@@ -187,28 +192,37 @@ const ChatMessageScreen = () => {
     setModalVisible(!isModalVisible);
   };
 
+  const sortedMessages = [...messages].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+  console.log(sortedMessages,"SSOORRTT")
+
   return (
     <View style={{flex: 1}}>
       <HeaderChatBar title={'ChatMessageScreen'} id={recepientId} />
 
       <View style={styles.pressableContainer}>
-        <View style={styles.pressableContainer1}>
-          <TouchableOpacity onPress={() => isexpense()}>
+      <TouchableOpacity  style={styles.pressableContainer1} onPress={() => isexpense()}>
+        <View>
+          
             <Text style={{color: 'black'}}>Expenses</Text>
-          </TouchableOpacity>
+         
         </View>
-        <View style={styles.pressableContainer2}>
-          <TouchableOpacity onPress={() => isChat()}>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.pressableContainer2} onPress={() => isChat()}>
+        <View>
+         
             <Text style={{color: 'black'}}>Chat</Text>
-          </TouchableOpacity>
+          
         </View>
+        </TouchableOpacity>
       </View>
 
       {isExpense ? (
         <ScrollView ref={scrollViewRef}>
           <Pressable>
             {recepientLoading ? (
-              <ActivityIndicator />
+               <View style={styles.loadingContainer}>
+               <ActivityIndicator size="large" color="#0000ff" />
+             </View>
             ) : recepientError ? (
               <Text>Error loading expenses: {recepientError}</Text>
             ) : (
@@ -223,13 +237,13 @@ const ChatMessageScreen = () => {
       ) : (
         <KeyboardAvoidingView style={styles.keyboardContainer}>
           <ScrollView ref={scrollViewRef}>
-            {messages.map((item: any, index: React.Key | null | undefined) => {
+            {sortedMessages.map((item: any, index: React.Key | null | undefined) => {
               if (item.messageType == 'text') {
                 return (
                   <Pressable
                     key={index}
                     style={[
-                      !item.senderId._id
+                      !item.senderId
                         ? {
                             alignSelf: 'flex-end',
                             backgroundColor: '#DCF8C6',
@@ -238,7 +252,7 @@ const ChatMessageScreen = () => {
                             borderRadius: 7,
                             margin: 10,
                           }
-                        : item.senderId._id == userId
+                        : item.senderId == userId
                         ? {
                             alignSelf: 'flex-end',
                             backgroundColor: '#DCF8C6',
@@ -258,7 +272,7 @@ const ChatMessageScreen = () => {
                     ]}>
                     <Text style={styles.textMessage}>{item.message}</Text>
                     <Text style={styles.textMsgTime}>
-                      {formatTime(item.timeStamp)}
+                      {formatTime(item.timestamp)}
                     </Text>
                   </Pressable>
                 );
@@ -270,7 +284,7 @@ const ChatMessageScreen = () => {
                   <Pressable
                     key={index}
                     style={[
-                      !item.senderId._id
+                      !item.senderId
                         ? {
                             alignSelf: 'flex-end',
                             backgroundColor: '#DCF8C6',
@@ -279,7 +293,7 @@ const ChatMessageScreen = () => {
                             borderRadius: 7,
                             margin: 10,
                           }
-                        : item.senderId._id == userId
+                        : item.senderId == userId
                         ? {
                             alignSelf: 'flex-end',
                             backgroundColor: '#DCF8C6',
@@ -312,7 +326,7 @@ const ChatMessageScreen = () => {
                           color: 'white',
                           marginTop: 5,
                         }}>
-                        {formatTime(item?.timeStamp)}
+                        {formatTime(item?.timestamp)}
                       </Text>
                     </View>
                   </Pressable>
@@ -357,7 +371,7 @@ const ChatMessageScreen = () => {
                 color="gray"
               />
 
-              <Feather name="mic" size={24} color="gray" />
+             
             </View>
 
             <Pressable
@@ -424,6 +438,11 @@ const styles = StyleSheet.create({
     height: 35,
     width: 35,
     borderRadius: 17,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   inputText: {
     flex: 1,
@@ -496,7 +515,7 @@ const styles = StyleSheet.create({
     padding: 5,
     textAlign: 'center',
     justifyContent: 'center',
-
+    borderRadius:10,
     marginTop: -5,
     height: 40,
   },
@@ -513,7 +532,7 @@ const styles = StyleSheet.create({
     padding: 5,
     textAlign: 'center',
     justifyContent: 'center',
-
+    borderRadius:10,
     marginTop: -5,
     height: 40,
   },

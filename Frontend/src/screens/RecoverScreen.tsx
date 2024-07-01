@@ -57,6 +57,9 @@ const RecoverScreen: React.FC<LoginProps> = props => {
       if (response.status === 200) {
         Alert.alert('Account recovered successfully!');
         dispatch(fetchUserDetails(userId));
+        setEmail('');
+        setPassword('');
+        navigation.navigate('Login')
       } else {
         Alert.alert('Failed to recover account');
       }

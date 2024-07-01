@@ -1,10 +1,11 @@
-import React, {useContext, useDebugValue} from 'react';
+import React, {useContext, useDebugValue, useEffect} from 'react';
 import {Pressable, StyleSheet, Text, ActivityIndicator} from 'react-native';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import {acceptFriendRequest} from '../redux/slices/friendSlice';
 
 import FastImage from 'react-native-fast-image';
+import { fetchFriends } from '../redux/slices/groupSlice';
 
 interface FriendRequestProps {
   item: {
@@ -25,11 +26,17 @@ const FriendRequest: React.FC<FriendRequestProps> = ({item}) => {
   const acceptRequest = async (friendRequestId: string) => {
     try {
       dispatch(acceptFriendRequest({friendRequestId, userId}));
-      navigation.navigate('Chats');
+      dispatch(fetchFriends(userId));
+      // navigation.navigate('Chats');
     } catch (err) {
       console.log('FRONT', err);
     }
   };
+  useEffect(()=>{
+
+    dispatch(fetchFriends(userId));
+  
+  },[acceptFriendRequest,acceptRequest])
 
   return (
     <Pressable style={styles.pressableContainer}>

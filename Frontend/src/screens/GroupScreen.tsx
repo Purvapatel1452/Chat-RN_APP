@@ -48,10 +48,7 @@ interface GroupScreenProps {
 }
 
 const GroupScreen: React.FC<GroupScreenProps> = ({navigation}) => {
-  const [groupList, setGroupList] = useState([]);
-  const [friendList, setFriendList] = useState([]);
-  const [msgVisible, setMsgVisible] = useState(false);
-  const [expenseFriendList, setExpenseFriendList] = useState([]);
+
 
   const [showModal, setShowModal] = useState(false);
 

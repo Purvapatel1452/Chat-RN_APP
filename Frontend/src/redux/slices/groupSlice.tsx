@@ -11,7 +11,7 @@ export const fetchGroups: any = createAsyncThunk(
   'group/fetchGroups',
   async (userId, {rejectWithValue}) => {
     try {
-      console.log(BASE_URL, 'erf4edwf5w4drfyrfregew');
+      console.log(BASE_URL, 'erf4edwf5wfgty4drfyrfregew');
       const token = await getToken();
       const response = await axios.get(`${BASE_URL}/group/groups/${userId}`, {
         headers: {
@@ -29,7 +29,7 @@ export const createGroup: any = createAsyncThunk(
   'group/createGroup',
   async (groupData, {rejectWithValue}) => {
     try {
-      console.log(BASE_URL, 'e5gtferfgwdygergfvretgw');
+      console.log(BASE_URL, 'e5gtferftg6yu7gwdygergfvretgw');
       const token = await getToken();
       const response = await axios.post(
         `${BASE_URL}/group/createGroup`,

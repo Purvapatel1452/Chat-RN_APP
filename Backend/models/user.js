@@ -79,6 +79,10 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
+  fcmToken:{
+    type:String,
+    required:true
+  }
 });
 
 userSchema.methods.markAsDeleted = function () {

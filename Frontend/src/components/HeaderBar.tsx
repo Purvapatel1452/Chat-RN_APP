@@ -105,12 +105,15 @@ const HeaderBar = ({title, onIconPress}: any) => {
         return (
           <View style={styles.headerContainer}>
             <Text style={styles.headerText}>Groups</Text>
-            <TouchableOpacity onPress={onIconPress} style={{left: 90}}>
+           
+           <TouchableOpacity onPress={onIconPress} style={{left: width*0.21}}>
               <View style={styles.imageContainer1}>
                 <AntDesign name="addusergroup" size={22} color={'#D77702'} />
               </View>
             </TouchableOpacity>
+         
             <ProfilePic />
+          
           </View>
         );
       case 'ExpensesScreen':

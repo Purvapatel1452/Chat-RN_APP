@@ -299,11 +299,13 @@ const ProfileScreen = () => {
             </View>
           </View>
 
-          <View style={{flexDirection: 'row', gap: 10, width: width * 0.83}}>
+          <View style={{flexDirection: 'row', gap: 0, width: width * 0.7}}>
             <View style={styles.balContainer}>
-              <Text style={styles.name}>balance:</Text>
-            </View>
-            <View style={styles.balContainer}>
+              <View>
+              <Text style={styles.bal}>balance:</Text>
+              </View>
+         <View style={styles.line}></View>
+         <View >
               {details.balance < 0 ? (
                 <Text style={styles.redname}>{`₹ ${details.balance.toFixed(
                   2,
@@ -314,9 +316,11 @@ const ProfileScreen = () => {
                 )}`}</Text>
               )}
             </View>
+            </View>
+          
           </View>
         </View>
-        <View style={{flex: 1, flexDirection: 'row', gap: 12}}>
+        <View style={{flex: 1, flexDirection: 'row', gap: 8}}>
           <TouchableOpacity
             onPress={() => setEditModalVisible(true)}
             style={styles.editContainer}>
@@ -528,16 +532,34 @@ const styles = StyleSheet.create({
 
     fontWeight: 'bold',
   },
-  greenname: {
+  bal: {
     color: 'black',
-    fontSize: 16,
+    fontSize: 22,
+    alignSelf:"center",
+    fontWeight: 'bold',
+    marginRight:38
+    
+  },
+  line:{
 
+    borderWidth:1,
+    flex:0.00000000001,
+    height:75,
+    margin:20,
+    right:30,
+    borderColor:"gray"
+    
+  },
+  greenname: {
+    color: 'green',
+    fontSize: 20,
+    right:18,
     fontWeight: 'bold',
   },
   redname: {
     color: 'red',
     fontSize: 16,
-
+    right:18,
     fontWeight: 'bold',
   },
   email: {
@@ -588,24 +610,25 @@ const styles = StyleSheet.create({
   },
   balContainer: {
     borderBottomWidth: 1,
-    borderRadius: 10,
+    borderRadius:20,
     borderColor: 'orange',
-
     shadowColor: 'black',
     backgroundColor: 'white',
-    width: 100,
+    width: width*0.5,
     marginTop: 20,
-    height: height * 0.05,
+    height: height * 0.12,
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
     paddingLeft: 10,
     paddingTop: 5,
-
+    elevation:5,
     flex: 1,
+    flexDirection:"row"
+  
   },
   logOutContainer: {
-    marginTop: 100,
+    position:"absolute",
     elevation: 2,
     shadowColor: 'black',
     shadowOpacity: 10,
@@ -616,9 +639,11 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     backgroundColor: 'red',
     borderRadius: 20,
+    bottom:-140,
+    
   },
   editContainer: {
-    marginTop: 20,
+  
     elevation: 2,
     shadowColor: 'black',
     shadowOpacity: 10,
@@ -629,6 +654,7 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     backgroundColor: 'white',
     borderRadius: 20,
+    bottom:-30
   },
   modalContainer: {
     flex: 1,

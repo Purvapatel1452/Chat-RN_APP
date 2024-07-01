@@ -1,5 +1,8 @@
 
-const stripe = require("stripe")("sk_test_51P6pcYSCdNlkqtTKEbkko3R7u9AU05pNEw9TKpeAtiEze3NmZlsWaun94sEQehiPPdlUouvIJ5d2thhp2527uaaJ00WSnKy45N");
+require('dotenv').config();
+
+console.log("patyment",process.env.STRIPE_SECRET_KEY,"PAYTM");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 const stripeIntent = async (req, res) => {
   console.log("patyment",process.env.STRIPE_SECRET_KEY);
@@ -48,23 +51,29 @@ const stripWebhook = async (req, res) => {
   res.json({ received: true, data: responsePayload });
 };
 
-const upiWebhook = async (req, res) => {
-  console.log("WEBHOO");
+const paymentIntent = async (req, res) => {
+  try {
+   const {amount}=req.body
+   console.log(amount,"GOO123")
 
-  const event = req.body;
-  console.log("EVENt", event, "+++");
+    const paymentIntent = await stripe.paymentIntents.create({
+      payment_method_types: ["card"],
+      amount: 100,
+      currency: "INR",
+    });
+    console.log("2md", res);
 
-  if (event.status === "SUCCESS") {
-    console.log("Payment was successfull", event);
-  } else {
-    console.log("Payment failed", event);
+    res.status(200).json(paymentIntent);
+  } catch (error) {
+    res.status(505).send(JSON.stringify(error));
   }
-
-  res.json({ received: true });
 };
+
+
 
 module.exports = {
   stripeIntent,
   stripWebhook,
-  upiWebhook,
+  paymentIntent
+
 };

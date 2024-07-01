@@ -62,10 +62,12 @@ const HeaderChatBar = ({title, id}: any) => {
   const renderIcon = () => {
     if (title === 'GroupChatScreen' && groupData) {
       return (
-        <>
+       <>
           {groupLoading ? (
+
             <ActivityIndicator />
           ) : (
+            <>
             <TouchableOpacity
               onPress={() =>
                 navigation.navigate('GroupChatProfile', {groupId: id})
@@ -77,10 +79,8 @@ const HeaderChatBar = ({title, id}: any) => {
                 />
               </View>
             </TouchableOpacity>
-          )}
-          {groupLoading ? (
-            <ActivityIndicator />
-          ) : (
+          
+          
             <View>
               <Text style={styles.headerText}>
                 {truncateText(groupData.name, 16)}
@@ -93,8 +93,9 @@ const HeaderChatBar = ({title, id}: any) => {
                 </View>
               </View>
             </View>
+              </>
           )}
-        </>
+      </>
       );
     } else if (title === 'ChatMessageScreen' && id) {
       return (
@@ -102,6 +103,7 @@ const HeaderChatBar = ({title, id}: any) => {
           {isLoading ? (
             <ActivityIndicator />
           ) : (
+            <>
             <TouchableOpacity
               onPress={() =>
                 navigation.navigate('UserProfile', {recepientId: id})
@@ -122,10 +124,7 @@ const HeaderChatBar = ({title, id}: any) => {
                 )}
               </View>
             </TouchableOpacity>
-          )}
-          {isLoading ? (
-            <ActivityIndicator />
-          ) : (
+        
             <View>
               <Text style={styles.headerText}>
                 {truncateText(recepientDatas.name, 16)}
@@ -134,6 +133,7 @@ const HeaderChatBar = ({title, id}: any) => {
                 {truncateText(recepientDatas.email, 32)}
               </Text>
             </View>
+            </>
           )}
         </>
       );

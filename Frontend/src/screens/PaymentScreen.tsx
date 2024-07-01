@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -26,24 +26,32 @@ import HeaderBar from '../components/HeaderBar';
 import {
   createPaymentIntent,
   fetchPaymentIntent,
+  googlePaymentIntent,
 } from '../redux/slices/paymentSlice';
 import {
   fetchUserSubscription,
   updateUserSubscription,
 } from '../redux/slices/subscriptionSlice';
-type BillingAddressFormat = 'MIN' | 'MAX'|'FULL';
+import {NavigationProp, useFocusEffect, useNavigation} from '@react-navigation/native';
+
+type BillingAddressFormat = 'MIN' | 'MAX' | 'FULL';
 const PaymentScreen = () => {
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalSlideAnim] = useState(new Animated.Value(0));
-  const [load,setLoad]=useState(false)
+  const [load, setLoad] = useState(true);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState<string>('');
+  const [refresh, setRefresh] = useState(false);
+
+  const navigation = useNavigation<NavigationProp<any>>();
 
   const dispatch = useDispatch();
   const {userId} = useSelector((state: any) => state.auth);
   const {initPaymentSheet, presentPaymentSheet} = useStripe();
   const {
     paymentIntentClientSecret,
+    googlePaymentIntentClientSecret,
     loading: paymentLoading,
     error: paymentError,
   } = useSelector((state: any) => state.payment);
@@ -60,6 +68,7 @@ const PaymentScreen = () => {
   ];
 
   const checkSubscription = async () => {
+    console.log('CALL');
     dispatch(fetchUserSubscription(userId));
     const currentDate = new Date();
     const subscriptionEndDate = new Date(subscription.subscriptionEndDate);
@@ -69,14 +78,34 @@ const PaymentScreen = () => {
       subscriptionEndDate.getTime() >= currentDate.getTime()
     ) {
       setIsSubscribed(true);
+      const timeDiff = subscriptionEndDate.getTime() - currentDate.getTime();
+      setTimeRemaining(formatTimeDifference(timeDiff));
     } else {
       setIsSubscribed(false);
+      setTimeRemaining('');
     }
+    setTimeout(() => {
+      setLoad(false);
+    }, 1000);
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      checkSubscription();
+      const unsubscribe = navigation.addListener<any>('tabPress', (e:any) => {
+        e.preventDefault();
+        setRefresh(!refresh);
+      });
+
+      return () => {
+        unsubscribe();
+      };
+    }, [refresh, userId, navigation])
+  );
 
   useEffect(() => {
     checkSubscription();
-  }, [dispatch, userId,setTimeout]);
+  }, [dispatch, userId,]);
 
   const handlePlanSelection = (plan: any) => {
     setSelectedPlan(plan);
@@ -111,13 +140,15 @@ const PaymentScreen = () => {
         dispatch(
           updateUserSubscription({userId, subscriptionType: selectedPlan.type}),
         );
+        setModalVisible(false)
+        navigation.navigate('GroupScreen');
         setTimeout(() => {
           checkSubscription();
-        }, 2000);
-        setLoad(true)
-        setTimeout(()=>{
-          setLoad(false)
-        },2000)
+        }, 3000);
+        setLoad(true);
+        setTimeout(() => {
+          setLoad(false);
+        }, 5000);
       }
     } catch (err: any) {
       console.error('Payment error:', err);
@@ -125,43 +156,37 @@ const PaymentScreen = () => {
     }
   };
 
-  const handlePlatformPay = async () => {
-    if (!selectedPlan) {
-      Alert.alert('Error', 'Please select a subscription plan.');
-      return;
-    }
-
-    try {
-      dispatch(createPaymentIntent({amount: selectedPlan.price * 100}));
-
-      const {error} = await confirmPlatformPayPayment(
-        paymentIntentClientSecret,
-        {
-          googlePay: {
-            testEnv: true,
-            merchantName: 'Your Company',
-            merchantCountryCode: 'INR',
-            currencyCode: 'INR',
-            billingAddressConfig: {
-              isPhoneNumberRequired: true,
-              isRequired: true,
+  const pay = async () => {
+    dispatch(googlePaymentIntent({amount: selectedPlan.price * 100})).then(
+      async (resultAction: any) => {
+        if (googlePaymentIntent.fulfilled.match(resultAction)) {
+          const {error} = await confirmPlatformPayPayment(
+            resultAction.payload,
+            {
+              googlePay: {
+                testEnv: true,
+                merchantName: 'My merchant name',
+                merchantCountryCode: 'US',
+                currencyCode: 'USD',
+                billingAddressConfig: {
+                  format: PlatformPay.BillingAddressFormat.Full,
+                  isPhoneNumberRequired: true,
+                  isRequired: true,
+                },
+              },
             },
-          },
-        },
-      );
+          );
 
-      if (error) {
-        Alert.alert(error.code, error.message);
-      } else {
-        Alert.alert('Success', 'The payment was confirmed successfully.');
-        dispatch(
-          updateUserSubscription({userId, subscriptionType: selectedPlan.type}),
-        );
-      }
-    } catch (err: any) {
-      console.error('Platform Pay error:', err);
-      Alert.alert('Error', err.message);
-    }
+          if (error) {
+            Alert.alert(error.code, error.message);
+          } else {
+            Alert.alert('Success', 'The payment was confirmed successfully.');
+          }
+        } else {
+          Alert.alert('Error', resultAction.payload);
+        }
+      },
+    );
   };
 
   const openURL = (url: any) => {
@@ -174,6 +199,15 @@ const PaymentScreen = () => {
         }
       })
       .catch(err => console.error('An error occurred', err));
+  };
+
+  const formatTimeDifference = (timeDiff: number): string => {
+    const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(
+      (timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+    );
+    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+    return `${days} days : ${hours} hours : ${minutes} minutes`;
   };
 
   const handleOpenModal = () => {
@@ -200,70 +234,75 @@ const PaymentScreen = () => {
     outputRange: [Dimensions.get('window').height, 0],
   });
 
-  // console.log(isSubscribed,"::",subscription.subscriptionType,plans.type)
-
   return (
     <>
       <HeaderBar title="Subscription" />
       <View style={styles.mainContainer}>
-        {
-          load ?
+        {load ? (
           <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0000ff" />
-        </View>
-        :
-        <ScrollView contentContainerStyle={styles.scrollView}>
-          {plans.map(plan => (
-            <Pressable
-              key={plan.type}
-              style={[
-                styles.subscriptionCardView,
-                selectedPlan?.type === plan.type && styles.isSelected,
-                plan.type == subscription.subscriptionType &&
-                  styles.subscribedBannerCard,
-              ]}
-              onPress={() => handlePlanSelection(plan)}
-              disabled={plan.type == subscription.subscriptionType}>
-              {isSubscribed && plan.type == subscription.subscriptionType ? (
-                <View style={styles.container}>
-                  <View style={styles.banner}>
-                    <Text style={styles.bannerText}>subscribed</Text>
-                  </View>
-                </View>
-              ) : null}
-
-              <View
+            <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+        ) : (
+          <ScrollView contentContainerStyle={styles.scrollView}>
+            {plans.map(plan => (
+              <Pressable
+                key={plan.type}
                 style={[
-                  styles.subscriptionCardDataView,
+                  styles.subscriptionCardView,
+                  selectedPlan?.type === plan.type && styles.isSelected,
                   plan.type == subscription.subscriptionType &&
-                    styles.subscribedBanner,
-                ]}>
-                <Text style={styles.subscriptionCardTypeText}>{plan.type}</Text>
-                <Text style={styles.subscriptionCardTypePrice}>
-                  ₹{plan.price}
-                </Text>
-              </View>
-              <View style={styles.subscriptionCardDetailsView}>
-                <Text style={styles.subscriptionCardDetailsMessage}>
-                  {plan.details}
-                </Text>
-              </View>
+                    styles.subscribedBannerCard,
+                ]}
+                onPress={() => handlePlanSelection(plan)}
+                // disabled={plan.type == subscription.subscriptionType}
+                >
+                {isSubscribed && plan.type == subscription.subscriptionType ? (
+                  <View style={styles.container}>
+                    <View style={styles.banner}>
+                      <Text style={styles.bannerText}>subscribed</Text>
+                    </View>
+                  </View>
+                ) : null}
 
-              {selectedPlan?.type === plan.type && (
-                <TouchableOpacity
-                  onPress={handleOpenModal}
-                  style={[styles.subscriptionCardBtnView]}>
-                  <Text style={styles.subscriptionCardBtnText}>
-                    Subscribe Now
+                <View
+                  style={[
+                    styles.subscriptionCardDataView,
+                    plan.type == subscription.subscriptionType &&
+                      styles.subscribedBanner,
+                  ]}>
+                  <Text style={styles.subscriptionCardTypeText}>
+                    {plan.type}
                   </Text>
-                </TouchableOpacity>
-              )}
-            </Pressable>
-          ))}
-        </ScrollView>
-          
-        }
-        
+                  <Text style={styles.subscriptionCardTypePrice}>
+                    ₹{plan.price}
+                  </Text>
+                </View>
+                <View style={styles.subscriptionCardDetailsView}>
+                  <Text style={styles.subscriptionCardDetailsMessage}>
+                    {plan.details}
+                  </Text>
+                </View>
+                {isSubscribed && plan.type == subscription.subscriptionType && (
+                  <View style={styles.subscriptionCardDetailsView}>
+                    <Text style={styles.subscriptionCardDetailsMessage}>
+                      Time Remaining: {timeRemaining}
+                    </Text>
+                  </View>
+                )}
+
+                {selectedPlan?.type === plan.type && (
+                  <TouchableOpacity
+                    onPress={handleOpenModal}
+                    style={[styles.subscriptionCardBtnView]}>
+                    <Text style={styles.subscriptionCardBtnText}>
+                      Subscribe Now
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </Pressable>
+            ))}
+          </ScrollView>
+        )}
 
         <Modal visible={modalVisible} transparent animationType="none">
           <Animated.View
@@ -272,18 +311,16 @@ const PaymentScreen = () => {
               {transform: [{translateY: modalSlideUp}]},
             ]}>
             <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Choose a Payment Method</Text>
-              <View>
-                <Button
-                  title="Pay"
-                  onPress={handleSubscription}
-                  disabled={paymentLoading || subscriptionLoading}
-                />
+              <Text style={styles.modalTitle}></Text>
+              <View style={{marginBottom: 20}}>
+                <Pressable style={styles.button} onPress={handleSubscription}>
+                  <Text style={styles.pay}>Pay</Text>
+                </Pressable>
               </View>
               <View>
                 <PlatformPayButton
                   type={PlatformPay.ButtonType.Pay}
-                  onPress={handlePlatformPay}
+                  onPress={pay}
                   style={styles.platformPayButton}
                 />
               </View>
@@ -340,6 +377,19 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 20,
+  },
+  button: {
+    backgroundColor: 'blue',
+    height: 40,
+    borderRadius: 8,
+  },
+  pay: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+    color: 'white',
+    fontWeight: 'bold',
   },
   platformPayButton: {
     width: '100%',

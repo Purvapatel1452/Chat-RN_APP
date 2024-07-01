@@ -16,7 +16,6 @@ import FastImage from 'react-native-fast-image';
 
 interface UserDetails {
   image: string;
-  // Add other properties if necessary
 }
 
 const ProfilePic: React.FC = () => {

@@ -26,6 +26,7 @@ import {fetchFriends, fetchGroups} from '../redux/slices/groupSlice';
 import {addExpense} from '../redux/slices/expensesSlice';
 import {fetchFriendsPaymentStatus} from '../redux/slices/friendSlice';
 import FastImage from 'react-native-fast-image';
+import { fetchUserSubscription } from '../redux/slices/subscriptionSlice';
 
 const ChatScreen = () => {
   const [showModal, setShowModal] = useState(false);
@@ -57,8 +58,45 @@ const ChatScreen = () => {
   );
   const dispatch = useDispatch();
 
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const navigation = useNavigation<NavigationProp<any>>();
   const [refresh, setRefresh] = useState(false);
+
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+
+  
+  const {
+    subscription,
+    loading: subscriptionLoading,
+    error: subscriptionError,
+  } = useSelector((state:any) => state.sub);
+
+  useEffect(() => {
+    console.log('USESUB');
+    dispatch(fetchUserSubscription(userId));
+  }, [dispatch, setShowModal,  userId]);
+
+  const checkSubscription = async () => {
+    dispatch(fetchUserSubscription(userId));
+    const currentDate = new Date();
+    const subscriptionEndDate = new Date(subscription.subscriptionEndDate);
+    console.log(
+      subscription,
+      subscriptionEndDate.getTime() >= currentDate.getTime(),
+      'SATU',
+    );
+
+    if (
+      subscription &&
+      subscriptionEndDate.getTime() >= currentDate.getTime()
+    ) {
+      return true;
+    } else {
+      setShowSubscriptionModal(true);
+      return false;
+    }
+  };
+
 
   const handleFriends = async () => {
     setSelect([]);
@@ -114,6 +152,9 @@ const ChatScreen = () => {
 
   const handleModel = async () => {
     console.log('MODALVIEWW');
+    const isSubscribed = await checkSubscription();
+    console.log(isSubscribed);
+    if (!isSubscribed) return;
 
     setShowModal(true);
     setSelectedFriends([]);
@@ -173,7 +214,12 @@ const ChatScreen = () => {
     };
     fetchAllData();
   }, [refresh, fetchFriendsPaymentStatus, fetchFriends]);
+useEffect(()=>{
 
+  dispatch(fetchFriendsPaymentStatus(userId));
+  dispatch(fetchFriends(userId));
+
+},[])
   const combineData = () => {
     return friends.map((friend: any) => {
       const paymentStatusForFriend = paymentStatus.find(
@@ -205,9 +251,9 @@ const ChatScreen = () => {
                 key={index}
                 item={item}
                 navigateMessages={() => {
-                  navigation.navigate('Messages', {recepientId: item._id});
-                }}
-              />
+                  navigation.navigate('Messages', { recepientId: item._id });
+                } } 
+                groupData={undefined}              />
             ),
           )}
         </Pressable>
@@ -351,6 +397,29 @@ const ChatScreen = () => {
               style={styles.closeButton}
               onPress={() => setShowModal(false)}>
               <Text style={styles.closeButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showSubscriptionModal}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>
+              You need to subscribe to access this feature.
+            </Text>
+            <TouchableOpacity
+              style={styles.subscribeButton}
+              onPress={() => navigation.navigate('Payment')}>
+              <Text style={styles.subscribeButtonText}>Subscribe Now</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowSubscriptionModal(false)}>
+              <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -560,6 +629,23 @@ const styles = StyleSheet.create({
   leftText: {
     fontSize: 20,
     color: 'black',
+    fontWeight: 'bold',
+  },
+  modalText: {
+    marginBottom: 20,
+    fontSize: 18,
+    textAlign: 'center',
+  },
+  subscribeButton: {
+    backgroundColor: '#D77702',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    alignItems:"center"
+  },
+  subscribeButtonText: {
+    color: 'white',
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });

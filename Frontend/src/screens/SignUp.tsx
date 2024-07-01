@@ -31,6 +31,7 @@ import {
 } from '../redux/slices/signUpSlice';
 
 import {TouchableOpacity} from 'react-native';
+import { getToken } from '../../NotificationService';
 
 const SignUp = () => {
   const navigation = useNavigation<NavigationProp<any>>();

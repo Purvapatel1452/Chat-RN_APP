@@ -4,6 +4,7 @@ const {
   stripeIntent,
   stripWebhook,
   upiWebhook,
+  paymentIntent,
 } = require("../controllers/payment-controller");
 const authMiddleware = require("../middleware/authMiddleware");
 
@@ -16,7 +17,8 @@ paymentRouter.post("/intents", authMiddleware, stripeIntent);
 
 paymentRouter.post("/stripe/webhook", stripWebhook);
 
-paymentRouter.post("/upi-webhook", upiWebhook); 
+
+paymentRouter.post('/create-payment-intent',paymentIntent )
 
 module.exports = paymentRouter;
 
