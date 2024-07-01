@@ -18,6 +18,12 @@ PODS:
     - FirebaseAnalytics (~> 10.27.0)
   - Firebase/CoreOnly (10.27.0):
     - FirebaseCore (= 10.27.0)
+  - Firebase/Database (10.27.0):
+    - Firebase/CoreOnly
+    - FirebaseDatabase (~> 10.27.0)
+  - Firebase/Messaging (10.27.0):
+    - Firebase/CoreOnly
+    - FirebaseMessaging (~> 10.27.0)
   - Firebase/Storage (10.27.0):
     - Firebase/CoreOnly
     - FirebaseStorage (~> 10.27.0)
@@ -49,11 +55,27 @@ PODS:
     - FirebaseCore (~> 10.0)
   - FirebaseCoreInternal (10.27.0):
     - "GoogleUtilities/NSData+zlib (~> 7.8)"
+  - FirebaseDatabase (10.27.0):
+    - FirebaseAppCheckInterop (~> 10.17)
+    - FirebaseCore (~> 10.0)
+    - FirebaseSharedSwift (~> 10.0)
+    - GoogleUtilities/UserDefaults (~> 7.13)
+    - leveldb-library (~> 1.22)
   - FirebaseInstallations (10.27.0):
     - FirebaseCore (~> 10.0)
     - GoogleUtilities/Environment (~> 7.8)
     - GoogleUtilities/UserDefaults (~> 7.8)
     - PromisesObjC (~> 2.1)
+  - FirebaseMessaging (10.27.0):
+    - FirebaseCore (~> 10.0)
+    - FirebaseInstallations (~> 10.0)
+    - GoogleDataTransport (~> 9.3)
+    - GoogleUtilities/AppDelegateSwizzler (~> 7.8)
+    - GoogleUtilities/Environment (~> 7.8)
+    - GoogleUtilities/Reachability (~> 7.8)
+    - GoogleUtilities/UserDefaults (~> 7.8)
+    - nanopb (< 2.30911.0, >= 2.30908.0)
+  - FirebaseSharedSwift (10.28.0)
   - FirebaseStorage (10.27.0):
     - FirebaseAppCheckInterop (~> 10.0)
     - FirebaseAuthInterop (~> 10.25)
@@ -83,6 +105,10 @@ PODS:
     - GoogleUtilities/Network (~> 7.11)
     - "GoogleUtilities/NSData+zlib (~> 7.11)"
     - nanopb (< 2.30911.0, >= 2.30908.0)
+  - GoogleDataTransport (9.4.1):
+    - GoogleUtilities/Environment (~> 7.7)
+    - nanopb (< 2.30911.0, >= 2.30908.0)
+    - PromisesObjC (< 3.0, >= 1.2)
   - GoogleUtilities (7.13.3):
     - GoogleUtilities/AppDelegateSwizzler (= 7.13.3)
     - GoogleUtilities/Environment (= 7.13.3)
@@ -1208,6 +1234,15 @@ PODS:
   - RNFBApp (20.1.0):
     - Firebase/CoreOnly (= 10.27.0)
     - React-Core
+  - RNFBDatabase (20.1.0):
+    - Firebase/Database (= 10.27.0)
+    - React-Core
+    - RNFBApp
+  - RNFBMessaging (20.1.0):
+    - Firebase/Messaging (= 10.27.0)
+    - FirebaseCoreExtension
+    - React-Core
+    - RNFBApp
   - RNFBStorage (20.1.0):
     - Firebase/Storage (= 10.27.0)
     - React-Core
@@ -1227,7 +1262,7 @@ PODS:
     - React-Core
   - RNShare (10.1.0):
     - React-Core
-  - RNVectorIcons (10.0.3):
+  - RNVectorIcons (10.1.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1344,6 +1379,8 @@ DEPENDENCIES:
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - RNFastImage (from `../node_modules/react-native-fast-image`)
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
+  - "RNFBDatabase (from `../node_modules/@react-native-firebase/database`)"
+  - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
   - "RNFBStorage (from `../node_modules/@react-native-firebase/storage`)"
   - RNImageCropPicker (from `../node_modules/react-native-image-crop-picker`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -1361,10 +1398,14 @@ SPEC REPOS:
     - FirebaseCore
     - FirebaseCoreExtension
     - FirebaseCoreInternal
+    - FirebaseDatabase
     - FirebaseInstallations
+    - FirebaseMessaging
+    - FirebaseSharedSwift
     - FirebaseStorage
     - fmt
     - GoogleAppMeasurement
+    - GoogleDataTransport
     - GoogleUtilities
     - GTMSessionFetcher
     - leveldb-library
@@ -1495,6 +1536,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-fast-image"
   RNFBApp:
     :path: "../node_modules/@react-native-firebase/app"
+  RNFBDatabase:
+    :path: "../node_modules/@react-native-firebase/database"
+  RNFBMessaging:
+    :path: "../node_modules/@react-native-firebase/messaging"
   RNFBStorage:
     :path: "../node_modules/@react-native-firebase/storage"
   RNImageCropPicker:
@@ -1523,11 +1568,15 @@ SPEC CHECKSUMS:
   FirebaseCore: a2b95ae4ce7c83ceecfbbbe3b6f1cddc7415a808
   FirebaseCoreExtension: 4ec89dd0c6de93d6becde32122d68b7c35f6bf5d
   FirebaseCoreInternal: 4b297a2d56063dbea2c1d0d04222d44a8d058862
+  FirebaseDatabase: 0e7f9f98f425a92b16a06cf9ca09810456e2dc80
   FirebaseInstallations: 766dabca09fd94aef922538aaf144cc4a6fb6869
+  FirebaseMessaging: 585984d0a1df120617eb10b44cad8968b859815e
+  FirebaseSharedSwift: 48de4aec81a6b79bb30404e5e6db43ea74848fed
   FirebaseStorage: 255526c3d04c49874d7a5e3886964a79f77d6f33
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: c5d68082e772fa1c511173d6b30a9de2c05a69a2
   GoogleAppMeasurement: f65fc137531af9ad647f1c0a42f3b6a4d3a98049
+  GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
   GoogleUtilities: ea963c370a38a8069cc5f7ba4ca849a60b6d7d15
   GTMSessionFetcher: 8000756fc1c19d2e5697b90311f7832d2e33f6cd
   hermes-engine: 9cecf9953a681df7556b8cc9c74905de8f3293c0
@@ -1583,11 +1632,13 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: 826b603ae9c0f88b5ac4e956801f755109fa4d5c
   RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
   RNFBApp: 1ae7462cddf74a49df206d3418bc0170f8fa53e5
+  RNFBDatabase: f1b545368a6f73bb149715761333701644a479a5
+  RNFBMessaging: 85f661b9f16e2b081e6809ef63d3daa4458b9042
   RNFBStorage: 0dc295ad7ff28ba30816e42e08028df19eea4468
   RNImageCropPicker: e7ab6fb43d2fc3e84651e786ef4a080d63b0ed3d
   RNScreens: 97a2a32820e632c5978d75250afa397ed9053910
   RNShare: b674d9f1cb0dc11116983bebd8712908a226a3ee
-  RNVectorIcons: 81e919c3a9e56e4916f9e74cfe9cd2e489146f08
+  RNVectorIcons: b307b181c8e98d633d416d36421d515cf2fe9e31
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17

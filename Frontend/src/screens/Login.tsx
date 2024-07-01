@@ -11,6 +11,7 @@ import {
   TextInput,
   Dimensions,
   TouchableOpacity,
+  SafeAreaView,
 } from 'react-native';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import Feather from 'react-native-vector-icons/Feather';
@@ -42,8 +43,8 @@ const Login: React.FC<LoginProps> = props => {
 
   return (
     <KeyboardAvoidingView style={styles.mainContainer} behavior="padding">
-      <StatusBar backgroundColor={'#D77702'} />
-      <ScrollView contentContainerStyle={{}}>
+      <SafeAreaView style={{backgroundColor:"#D77702"}}>
+      <ScrollView style={{backgroundColor:"#f2f2f2",paddingBottom:795}}>
         <View>
           <View style={styles.loginContainer}>
             <Text style={styles.text_header}>Login</Text>
@@ -102,7 +103,7 @@ const Login: React.FC<LoginProps> = props => {
               onPress={handleSubmit}
               disabled={loading}>
               <Text style={styles.textSign}>
-                {loading ? ' Loading...' : 'Log In'}
+                {loading ? 'Loading...' : 'Log In'}
               </Text>
             </TouchableOpacity>
             <View style={{padding: 15}}>
@@ -160,6 +161,7 @@ const Login: React.FC<LoginProps> = props => {
           </View>
         </View>
       </ScrollView>
+      </SafeAreaView>
     </KeyboardAvoidingView>
   );
 };
@@ -220,7 +222,6 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
     elevation: 4,
     shadowColor: 'black',
-    shadowOpacity: 10,
     justifyContent: 'center',
     flex: 1,
     alignSelf: 'center',
@@ -274,7 +275,7 @@ const styles = StyleSheet.create({
     fontSize: 40,
   },
   bottomText: {
-    color: 'white',
+    color: 'gray',
     fontSize: 12,
     fontWeight: '600',
     marginTop: 5,

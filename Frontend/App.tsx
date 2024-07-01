@@ -59,29 +59,30 @@ import AppStack from './src/navigations/stack/AppStack';
 import {BASE_URL, STRIPE_KEY} from '@env';
 import { requestUserPermission, getToken, showNotification } from './NotificationService';
 import messaging from '@react-native-firebase/messaging';
-// import PushNotification from 'react-native-push-notification';
+import { useDispatch } from 'react-redux';
+
 
 const App = () => {
   console.log(BASE_URL,">gd5y>>fghjgef45guhtr6erg>>>",STRIPE_KEY);
 
-  useEffect(() => {
-    requestUserPermission();
-    // getToken();
+  // useEffect(() => {
+  //   requestUserPermission();
+  //   // getToken();
 
-    // createNotificationChannel();
+  //   // createNotificationChannel();
 
-    // Handle foreground messages
-    const unsubscribe = messaging().onMessage(async (remoteMessage:any) => {
-      console.log('A new FCM message arrived!', remoteMessage);
-      showNotification(remoteMessage.notification.title, remoteMessage.notification.body);
-    });
+  //   // Handle foreground messages
+  //   const unsubscribe = messaging().onMessage(async (remoteMessage:any) => {
+  //     console.log('A new FCM message arrived!', remoteMessage);
+  //     showNotification(remoteMessage.notification.token, remoteMessage.notification.title, remoteMessage.notification.body);
+  //   });
 
-    return unsubscribe;
-  }, []);
+  //   return unsubscribe;
+  // }, []);
 
-  const sendTestNotification = () => {
-    showNotification('Test Title', 'This is a test notification');
-  };
+  // const sendTestNotification = () => {
+  //   showNotification('Test Title', 'This is a test notification');
+  // };
 
   return (
     <StripeProvider publishableKey={STRIPE_KEY}>
@@ -90,7 +91,6 @@ const App = () => {
     // <View>
     //   <Text>HIII</Text>
     //   <Button title="Send Test Notification" onPress={sendTestNotification} />
-  
     // </View>
   );
 };

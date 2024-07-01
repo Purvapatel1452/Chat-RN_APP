@@ -52,7 +52,17 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isEditable, setIsEditable] = useState(true);
 
+  useEffect(() => {
+    // Fetch and set the FCM token on component mount
+    async function fetchFcmToken() {
+      const fcmToken = await getToken();
+      dispatch(setUserData({ fcmToken }));
+    }
+
+    fetchFcmToken();
+  }, [dispatch]);
   const handleChange = (field: string, value: string) => {
+    console.log(field,"???:::???",value)
     dispatch(setUserData({[field]: value}));
     dispatch(verifyFields());
   };
@@ -73,28 +83,38 @@ const SignUp = () => {
     dispatch(verifyOtp({email: userData.email, otp: userData.otp}));
   };
 
-  function handleSubmit() {
+  async function handleSubmit() {
     if (nameVerify && emailVerify && passwordVerify && mobileVerify) {
+      const fcmToken=await getToken()
+
+     
       if (otpVerify) {
-        dispatch(registerUser(userData)).then((result: any) => {
-          if (registerUser.fulfilled.match(result)) {
-            Alert.alert('Registration Successfull');
-            navigation.navigate('Login');
-          } else if (registerUser.rejected.match(result)) {
-            Alert.alert('Registration Failed', result.payload);
-          }
-          setIsEditable(true);
-          console.log(isEditable, 'EEEEEEEEEEEEEEEEEEEEE');
-          dispatch(
-            setUserData({
-              name: '',
-              email: '',
-              mobile: '',
-              password: '',
-              otp: '',
-            }),
-          );
-        });
+   
+
+  dispatch(registerUser(userData)).then((result: any) => {
+    if (registerUser.fulfilled.match(result)) {
+      Alert.alert('Registration Successfull');
+      navigation.navigate('Login');
+    } else if (registerUser.rejected.match(result)) {
+      Alert.alert('Registration Failed', result.payload);
+    }
+    setIsEditable(true);
+    console.log(isEditable, 'EEEEEEEEEEEEEEEEEEEEE');
+    dispatch(
+      setUserData({
+        name: '',
+        email: '',
+        mobile: '',
+        password: '',
+        otp: '',
+        fcmToken:''
+      }),
+    );
+  });
+
+
+       
+        
       } else {
         Alert.alert(
           'Email Verification',

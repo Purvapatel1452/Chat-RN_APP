@@ -6,6 +6,7 @@ import {
   Image,
   Modal,
   Pressable,
+  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -240,10 +241,11 @@ useEffect(()=>{
   const combinedData = combineData();
 
   return (
-    <View style={{flex: 1, backgroundColor: '#f8f8f8'}}>
+    <SafeAreaView style={{flex: 1, backgroundColor: '#D77702'}}>
+   
       <StatusBar backgroundColor={'#D77702'} />
       <HeaderBar title={'ChatScreen'} />
-      <ScrollView>
+      <ScrollView style={{backgroundColor:"#f8f8f8"}}>
         <Pressable>
           {combinedData.map(
             (item: any, index: React.Key | null | undefined) => (
@@ -424,7 +426,8 @@ useEffect(()=>{
           </View>
         </View>
       </Modal>
-    </View>
+  
+    </SafeAreaView>
   );
 };
 

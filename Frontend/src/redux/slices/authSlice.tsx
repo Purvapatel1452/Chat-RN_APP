@@ -1,9 +1,9 @@
-import {BASE_URL} from '@env';
+import {BASE_URL_AND, BASE_URL_IOS} from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import axios from 'axios';
 import {decode} from 'base-64';
-import {Alert} from 'react-native';
+import {Alert,Platform} from 'react-native';
 
 interface AuthState {
   userId: string | null;
@@ -27,9 +27,9 @@ export const login: any = createAsyncThunk<any>(
   async (userData, {rejectWithValue}) => {
     try {
       console.log('LOGI');
-      console.log(BASE_URL, ';jdrthsferurty6yuyr6eg;ygh67uhfdhiyl');
+      console.log(BASE_URL_AND,BASE_URL_IOS, ';jdrthsferurty6ol;ioyuyyioloiurtuyuir6efghrtg;ygh67uhfdhiyl');
 
-      const response = await axios.post(`${BASE_URL}/user/login`, userData);
+      const response = await axios.post(`${Platform.OS=='ios'?BASE_URL_IOS:BASE_URL_AND}/user/login`, userData);
 
       const token = response.data.data;
 

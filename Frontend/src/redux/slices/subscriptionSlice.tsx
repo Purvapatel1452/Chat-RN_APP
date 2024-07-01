@@ -1,7 +1,8 @@
-import {BASE_URL} from '@env';
+import {BASE_URL, BASE_URL_AND, BASE_URL_IOS} from '@env';
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 // Helper function to get token
 const getToken = async () => {
@@ -16,7 +17,7 @@ export const fetchUserSubscription: any = createAsyncThunk(
       console.log(BASE_URL, 'Zjfkrtggbgtrjf54hgutbwetgtfrrgrtdt@');
       const token = await getToken();
       const response = await axios.get(
-        `${BASE_URL}/user/getSubscription/${userId}`,
+        `${Platform.OS=='ios'?BASE_URL_IOS:BASE_URL_AND}/user/getSubscription/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

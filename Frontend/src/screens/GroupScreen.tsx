@@ -6,6 +6,7 @@ import {
   Modal,
   Platform,
   Pressable,
+  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -340,9 +341,9 @@ const GroupScreen: React.FC<GroupScreenProps> = ({navigation}) => {
   const combinedData = combineData();
 
   return (
-    <View style={{flex: 1, backgroundColor: 'white'}}>
-      {/* <StatusBar backgroundColor={'#D77702'} /> */}
-      <StatusBar backgroundColor="#D77702" barStyle="dark-content" />
+    <SafeAreaView style={{flex: 1, backgroundColor: '#D77702'}}>
+   
+      {/* <StatusBar backgroundColor="#D77702" barStyle="dark-content" /> */}
 
       <HeaderBar title={'GroupScreen'}  onIconPress={handleModel} />
       <ScrollView style={styles.scrollContainer}>
@@ -653,7 +654,8 @@ const GroupScreen: React.FC<GroupScreenProps> = ({navigation}) => {
           </View>
         </View>
       </Modal>
-    </View>
+    
+    </SafeAreaView>
   );
 };
 
@@ -662,7 +664,8 @@ export default GroupScreen;
 const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
-    marginBottom: 50,
+    marginBottom: 20,
+    backgroundColor:"white"
   },
   container: {
     justifyContent: 'center',

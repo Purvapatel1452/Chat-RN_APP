@@ -146,7 +146,7 @@ const ProfileScreen = () => {
       await task;
       const url = await storage().ref(`user/${filename}`).getDownloadURL();
       const token = getToken();
-      console.log('rt54tukyi:', BASE_URL);
+      console.log('rt54turgfdrte5ykyi:', BASE_URL);
       const response = await axios.post(
         `${BASE_URL}/user/uploadImage`,
         {

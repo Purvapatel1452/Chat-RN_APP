@@ -1,6 +1,7 @@
 import {
   ActivityIndicator,
   Pressable,
+  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -59,7 +60,8 @@ const ExpensesScreen = () => {
   }, []);
 
   return (
-    <View>
+
+    <SafeAreaView style={{backgroundColor:'#D77702'}}>
       <StatusBar backgroundColor={'#D77702'} />
 
       <HeaderBar title={'ExpensesScreen'} />
@@ -132,7 +134,8 @@ const ExpensesScreen = () => {
           </View>
         )}
       </ScrollView>
-    </View>
+    
+    </SafeAreaView>
   );
 };
 

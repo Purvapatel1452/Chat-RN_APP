@@ -132,7 +132,7 @@ const ChatMessageScreen = () => {
           Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
 
         const task = storage().ref(`chat/${filename}`).putFile(uploadUri);
-        toggleModal();
+        toggleModal()
 
         try {
           await task;
@@ -148,7 +148,8 @@ const ChatMessageScreen = () => {
         dispatch(sendMessage({ userId, recepientId,messageType:messageType, message }));
   
       }
-      showNotification(recepientDatas.name, message);
+      console.log(recepientDatas,"NNOOTTOO")
+      showNotification(recepientDatas.fcmToken,recepientDatas.name, message);
   
       setMessage('');
       setSelectedImage('');
@@ -193,7 +194,7 @@ const ChatMessageScreen = () => {
   };
 
   const sortedMessages = [...messages].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-  console.log(sortedMessages,"SSOORRTT")
+  console.log(sortedMessages,"SSOORRTT",recepientDatas)
 
   return (
     <View style={{flex: 1}}>

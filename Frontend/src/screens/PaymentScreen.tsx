@@ -9,6 +9,7 @@ import {
   Linking,
   Modal,
   Pressable,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -235,7 +236,7 @@ const PaymentScreen = () => {
   });
 
   return (
-    <>
+    <SafeAreaView style={{backgroundColor:"#D77702"}} >
       <HeaderBar title="Subscription" />
       <View style={styles.mainContainer}>
         {load ? (
@@ -329,16 +330,16 @@ const PaymentScreen = () => {
           </Animated.View>
         </Modal>
       </View>
-    </>
+      </SafeAreaView>
   );
 };
 const {width, height} = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   mainContainer: {
-    flex: 1,
+    
     padding: 20,
-    backgroundColor: '#ff',
+    backgroundColor: '#f2f2f2',
   },
   scrollView: {
     padding: 10,
@@ -408,7 +409,9 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderColor: 'white',
     borderWidth: 3,
-
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 0},
+    shadowOpacity: 0.2,
     width: width * 0.85,
     alignSelf: 'center',
   },

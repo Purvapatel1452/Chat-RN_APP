@@ -56,7 +56,7 @@ const signUpSlice = createSlice({
       mobile: '',
       password: '',
       otp: '',
-      fcmToken:getToken()
+      fcmToken:''
     },
     nameVerify: false,
     emailVerify: false,
@@ -68,8 +68,9 @@ const signUpSlice = createSlice({
     loading: false,
   },
   reducers: {
-    setUserData: (state, action) => {
+    setUserData: (state:any, action) => {
       state.userData = {...state.userData, ...action.payload};
+      console.log(action.payload,"MARUTINANDAN",state.userData)
     },
     clearError: state => {
       state.error = null;
