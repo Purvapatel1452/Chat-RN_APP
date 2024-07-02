@@ -1,7 +1,8 @@
-import {BASE_URL} from '@env';
+
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import axios from 'axios';
 import { getToken } from '../../../NotificationService';
+import { BASE_URL } from '../../../App';
 
 export const sendOtp: any = createAsyncThunk(
   'signUp/sendOtp',

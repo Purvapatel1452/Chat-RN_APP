@@ -53,14 +53,16 @@ import React, {useEffect} from 'react';
 
 import {StripeProvider} from '@stripe/stripe-react-native';
 
-import {Button, StyleSheet, Text, View} from 'react-native';
+import {Button, Platform, StyleSheet, Text, View} from 'react-native';
 
 import AppStack from './src/navigations/stack/AppStack';
-import {BASE_URL, STRIPE_KEY} from '@env';
+import {BASE_URL_AND, BASE_URL_IOS, STRIPE_KEY} from '@env';
 import { requestUserPermission, getToken, showNotification } from './NotificationService';
 import messaging from '@react-native-firebase/messaging';
 import { useDispatch } from 'react-redux';
 
+console.log(BASE_URL_AND,"fdguheiruf",BASE_URL_IOS,"dsjkf")
+export const BASE_URL=Platform.OS=='ios'?BASE_URL_IOS:BASE_URL_AND;
 
 const App = () => {
   console.log(BASE_URL,">gd5y>>fghjgef45guhtr6erg>>>",STRIPE_KEY);

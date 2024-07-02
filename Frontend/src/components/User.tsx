@@ -50,7 +50,7 @@ const User: React.FC<UserProps> = ({item}) => {
 
   return (
     <Pressable style={styles.pressableContainer}>
-      <View>
+      <View style={{flex:0.34}} >
         {item.image ? (
           <FastImage style={styles.image} source={{uri: item.image}} />
         ) : (
@@ -98,6 +98,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 10,
+    gap:5
   },
   image: {
     width: 50,
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     marginLeft: 12,
-    flex: 1,
+    flex: 1.5,
   },
   textName: {
     fontWeight: 'bold',
@@ -123,12 +124,14 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
     width: 105,
+    flex:0.6
   },
   pressAddFrnd1: {
     backgroundColor: '#8BC34A',
     padding: 10,
     borderRadius: 8,
     width: 105,
+    flex:0.6
   },
   textAdd: {
     color: 'white',

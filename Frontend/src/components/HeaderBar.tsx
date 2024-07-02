@@ -228,7 +228,6 @@ const styles = StyleSheet.create({
     borderBottomEndRadius: 1,
     borderColor: 'silver',
     shadowColor: 'black',
-    shadowOpacity: 2,
     elevation: 10,
   },
   headerText: {

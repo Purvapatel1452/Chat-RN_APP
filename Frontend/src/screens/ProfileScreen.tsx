@@ -6,6 +6,7 @@ import {
   ImageBackground,
   Modal,
   Platform,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
@@ -17,7 +18,11 @@ import React, {useEffect, useState} from 'react';
 import HeaderBar from '../components/HeaderBar';
 import {useDispatch, useSelector} from 'react-redux';
 import axios from 'axios';
-import {NavigationProp, useNavigation, useRoute} from '@react-navigation/native';
+import {
+  NavigationProp,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {clearUser} from '../redux/slices/authSlice';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -34,7 +39,9 @@ import {
   fetchUserDetails,
   updateUserProfile,
 } from '../redux/slices/usersSlice';
-import {BASE_URL} from '@env';
+import {BASE_URL} from '../../App';
+import {SafeAreaFrameContext} from 'react-native-safe-area-context';
+import {SafeAreaView} from 'react-native';
 
 const ProfileScreen = () => {
   const [image, setImage] = useState<any>(null);
@@ -195,7 +202,6 @@ const ProfileScreen = () => {
                 );
                 await AsyncStorage.removeItem('authToken');
                 dispatch(clearUser());
-           
               } else {
                 Alert.alert(
                   'Failed to delete account!',
@@ -212,17 +218,17 @@ const ProfileScreen = () => {
   };
 
   return (
-    <View style={styles.mainContainer}>
+    <SafeAreaView style={styles.mainContainer}>
       <StatusBar backgroundColor={'#D77702'} />
 
       <View style={{alignItems: 'center'}}>
         <View style={{flex: 1}}>
-          <View style={{flex: 1, position: 'relative'}}>
+          <View style={{flex: 1, position: 'relative', height: height * 0.45}}>
             <ImageBackground
               source={{
                 uri: 'https://logowik.com/content/uploads/images/hive6576.logowik.com.webp',
               }}
-              style={{height: height * 0.24, width: width}}>
+              style={{height: height * 0.26, width: width}}>
               <View style={styles.overlay} />
               <IonIcons
                 name="arrow-back-sharp"
@@ -234,7 +240,9 @@ const ProfileScreen = () => {
             </ImageBackground>
           </View>
         </View>
+       
         <View style={styles.contentContainer}>
+     
           <View style={styles.imageContainer}>
             {loading ? (
               <ActivityIndicator size={30} style={{height: 190}} />
@@ -252,7 +260,7 @@ const ProfileScreen = () => {
               />
             )}
           </View>
-
+          
           <TouchableOpacity onPress={() => setModalVisible(true)}>
             <View style={styles.add}>
               <MaterialIcons
@@ -302,82 +310,81 @@ const ProfileScreen = () => {
           <View style={{flexDirection: 'row', gap: 0, width: width * 0.7}}>
             <View style={styles.balContainer}>
               <View>
-              <Text style={styles.bal}>balance:</Text>
+                <Text style={styles.bal}>balance:</Text>
               </View>
-         <View style={styles.line}></View>
-         <View >
-              {details.balance < 0 ? (
-                <Text style={styles.redname}>{`₹ ${details.balance.toFixed(
-                  2,
-                )}`}</Text>
-              ) : (
-                <Text style={styles.greenname}>{`₹ ${details.balance.toFixed(
-                  2,
-                )}`}</Text>
-              )}
+              <View style={styles.line}></View>
+              <View>
+                {details.balance < 0 ? (
+                  <Text style={styles.redname}>{`₹ ${details.balance.toFixed(
+                    2,
+                  )}`}</Text>
+                ) : (
+                  <Text style={styles.greenname}>{`₹ ${details.balance.toFixed(
+                    2,
+                  )}`}</Text>
+                )}
+              </View>
             </View>
-            </View>
-          
           </View>
-        </View>
-        <View style={{flex: 1, flexDirection: 'row', gap: 8}}>
+          <View style={{flex: 1, flexDirection: 'row', gap: 8,marginBottom:40}}>
+            <TouchableOpacity
+              onPress={() => setEditModalVisible(true)}
+              style={styles.editContainer}>
+              <View style={{}}>
+                <Text
+                  style={{
+                    color: 'red',
+                    textAlign: 'center',
+                    fontSize: 20,
+                    fontWeight: 'bold',
+                    elevation: 2,
+                  }}>
+                  Edit Profile
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => handleLogout()}
+              style={styles.editContainer}>
+              <View style={{}}>
+                <Text
+                  style={{
+                    color: 'red',
+                    textAlign: 'center',
+                    fontSize: 20,
+                    fontWeight: 'bold',
+                    elevation: 2,
+                  }}>
+                  Log Out
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        <View style={{flex:1}}>
           <TouchableOpacity
-            onPress={() => setEditModalVisible(true)}
-            style={styles.editContainer}>
+            onPress={() => handleDeleteAccount()}
+            style={styles.logOutContainer}>
             <View style={{}}>
               <Text
                 style={{
-                  color: 'red',
+                  color: 'white',
                   textAlign: 'center',
                   fontSize: 20,
                   fontWeight: 'bold',
                   elevation: 2,
                   shadowColor: 'black',
                   shadowOpacity: 10,
+                  shadowOffset: {height: 1, width: 0},
                 }}>
-                Edit Profile
+                Delete Account
               </Text>
             </View>
           </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => handleLogout()}
-            style={styles.editContainer}>
-            <View style={{}}>
-              <Text
-                style={{
-                  color: 'red',
-                  textAlign: 'center',
-                  fontSize: 20,
-                  fontWeight: 'bold',
-                  elevation: 2,
-                  shadowColor: 'black',
-                  shadowOpacity: 10,
-                }}>
-                Log Out
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity
-          onPress={() => handleDeleteAccount()}
-          style={styles.logOutContainer}>
-          <View style={{}}>
-            <Text
-              style={{
-                color: 'white',
-                textAlign: 'center',
-                fontSize: 20,
-                fontWeight: 'bold',
-                elevation: 2,
-                shadowColor: 'black',
-                shadowOpacity: 10,
-              }}>
-              Delete Account
-            </Text>
           </View>
-        </TouchableOpacity>
+      
+        </View>
+           
       </View>
 
       <Modal
@@ -470,8 +477,10 @@ const ProfileScreen = () => {
             </TouchableOpacity>
           </View>
         </View>
+
       </Modal>
-    </View>
+    
+    </SafeAreaView>
   );
 };
 
@@ -482,11 +491,13 @@ export default ProfileScreen;
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
+    backgroundColor: '#D77702',
   },
   contentContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: height * 0.15,
+    marginTop: height * 0.24,
+    backgroundColor: '#f2f2f2',
   },
   add: {
     borderWidth: 1,
@@ -518,13 +529,14 @@ const styles = StyleSheet.create({
     elevation: 9,
     borderRadius: 100,
     shadowOpacity: 10,
+    shadowOffset: {height: 0, width: 0},
     shadowColor: 'black',
     borderColor: 'silver',
     borderWidth: 0.5,
     height: height * 0.18,
     width: height * 0.18,
     backgroundColor: 'silver',
-    marginTop: height * 0.001,
+    marginTop: -height * 0.09,
   },
   name: {
     color: 'black',
@@ -535,31 +547,28 @@ const styles = StyleSheet.create({
   bal: {
     color: 'black',
     fontSize: 22,
-    alignSelf:"center",
+    alignSelf: 'center',
     fontWeight: 'bold',
-    marginRight:38
-    
+    marginRight: 38,
   },
-  line:{
-
-    borderWidth:1,
-    flex:0.00000000001,
-    height:75,
-    margin:20,
-    right:30,
-    borderColor:"gray"
-    
+  line: {
+    borderWidth: 1,
+    flex: 0.00000000001,
+    height: 75,
+    margin: 20,
+    right: 30,
+    borderColor: 'gray',
   },
   greenname: {
     color: 'green',
     fontSize: 20,
-    right:18,
+    right: 18,
     fontWeight: 'bold',
   },
   redname: {
     color: 'red',
     fontSize: 16,
-    right:18,
+    right: 18,
     fontWeight: 'bold',
   },
   email: {
@@ -610,11 +619,11 @@ const styles = StyleSheet.create({
   },
   balContainer: {
     borderBottomWidth: 1,
-    borderRadius:20,
+    borderRadius: 20,
     borderColor: 'orange',
     shadowColor: 'black',
     backgroundColor: 'white',
-    width: width*0.5,
+    width: width * 0.5,
     marginTop: 20,
     height: height * 0.12,
     justifyContent: 'center',
@@ -622,13 +631,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingLeft: 10,
     paddingTop: 5,
-    elevation:5,
+    elevation: 5,
     flex: 1,
-    flexDirection:"row"
-  
+    flexDirection: 'row',
   },
   logOutContainer: {
-    position:"absolute",
     elevation: 2,
     shadowColor: 'black',
     shadowOpacity: 10,
@@ -639,13 +646,12 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     backgroundColor: 'red',
     borderRadius: 20,
-    bottom:-140,
+    shadowOffset:{height:0,width:0},
     
   },
   editContainer: {
-  
     elevation: 2,
-    shadowColor: 'black',
+    shadowColor: 'gray',
     shadowOpacity: 10,
     borderWidth: 2,
     padding: 10,
@@ -654,7 +660,8 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     backgroundColor: 'white',
     borderRadius: 20,
-    bottom:-30
+    bottom: -30,
+    shadowOffset:{height:1,width:1},
   },
   modalContainer: {
     flex: 1,
@@ -707,7 +714,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Adjust the opacity to make the image look dull
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
   icon: {
     position: 'absolute',

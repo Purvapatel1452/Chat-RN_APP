@@ -8,6 +8,7 @@ import {
   Image,
   Button,
   TouchableOpacity,
+  SafeAreaView,
 } from 'react-native';
 
 import {useRoute} from '@react-navigation/native';
@@ -64,7 +65,7 @@ const ExpenseScreen = ({navigation}: any) => {
   };
 
   return (
-    <>
+    <SafeAreaView style={{backgroundColor:"#D77702"}} >
       <HeaderBar title={'Expense'} />
       {ld ? (
         <View style={styles.loadingContainer}>
@@ -111,7 +112,7 @@ const ExpenseScreen = ({navigation}: any) => {
               <Text style={styles.value2}>₹{expens.amount}</Text>
 
               <View
-                style={{elevation: 20, shadowColor: 'red', shadowOpacity: 10}}>
+                style={{elevation: 20}}>
                 <Text style={styles.value}>{expens.type}</Text>
               </View>
             </View>
@@ -201,7 +202,7 @@ const ExpenseScreen = ({navigation}: any) => {
           </ScrollView>
         </View>
       )}
-    </>
+    </SafeAreaView>
   );
 };
 
@@ -210,10 +211,12 @@ export default ExpenseScreen;
 const styles = StyleSheet.create({
   mainContainer: {
     marginBottom: 220,
+    backgroundColor:"#f5f5f5"
   },
   container: {
     // flexGrow: 1,
     padding: 16,
+    paddingBottom:250,
     backgroundColor: '#f5f5f5',
   },
   title: {
@@ -258,6 +261,8 @@ const styles = StyleSheet.create({
     borderLeftWidth: 1,
     borderRightWidth: 1.6,
     borderBottomWidth: 3,
+  
+  
   },
   value5: {
     fontSize: 16,
@@ -365,7 +370,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   loadingContainer: {
-    flex: 1,
+    backgroundColor:"#f5f5f5",
     justifyContent: 'center',
     alignItems: 'center',
   },

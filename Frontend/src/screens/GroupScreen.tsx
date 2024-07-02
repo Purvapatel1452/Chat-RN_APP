@@ -568,6 +568,8 @@ const GroupScreen: React.FC<GroupScreenProps> = ({navigation}) => {
                 backgroundColor: 'white',
                 padding: 5,
                 margin: 5,
+                shadowOffset:{height:0,width:0}
+                
               }}>
               <FlatList
                 data={isGroup ? groups : friends}
@@ -694,8 +696,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: 'black',
-    shadowOpacity: 0.2,
+    shadowColor: 'gray',
+    shadowOpacity: 2,
+    shadowOffset:{height:0,width:0},
     elevation: 8,
   },
   buttonContainer2: {
@@ -712,6 +715,7 @@ const styles = StyleSheet.create({
     shadowColor: 'black',
     shadowOpacity: 1,
     elevation: 8,
+    shadowOffset:{height:0,width:0}
   },
   buttonText: {
     fontSize: 16,
@@ -783,10 +787,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     height: 60,
     borderColor: 'gray',
-    elevation: 2,
+    elevation: 10,
     backgroundColor: 'white',
-    shadowColor: 'black',
+    shadowColor: 'gray',
     shadowOpacity: 20,
+    shadowOffset:{height:0,width:0}
   },
   checkbox: {
     height: 24,
@@ -829,7 +834,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    borderWidth: 0.9,
+    borderWidth: 0,
     borderLeftWidth: 0,
     borderRightWidth: 0,
     borderTopWidth: 0,

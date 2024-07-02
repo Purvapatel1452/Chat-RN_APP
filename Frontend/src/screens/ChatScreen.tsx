@@ -255,7 +255,7 @@ useEffect(()=>{
                 navigateMessages={() => {
                   navigation.navigate('Messages', { recepientId: item._id });
                 } } 
-                groupData={undefined}              />
+                groupData={undefined}    />
             ),
           )}
         </Pressable>
@@ -545,8 +545,9 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     elevation: 2,
     backgroundColor: 'white',
-    shadowColor: 'black',
+    shadowColor: 'gray',
     shadowOpacity: 20,
+    shadowOffset:{height:0,width:0}
   },
   checkbox: {
     height: 24,

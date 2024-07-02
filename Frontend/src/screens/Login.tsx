@@ -172,7 +172,7 @@ export default Login;
 
 const styles = StyleSheet.create({
   mainContainer: {
-    backgroundColor: 'silver',
+    backgroundColor: '#f2f2f2',
     flex: 1,
   },
   textSign: {
@@ -225,6 +225,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flex: 1,
     alignSelf: 'center',
+    shadowOffset:{height:0,width:0},
+    shadowOpacity:10
   },
   header: {
     justifyContent: 'flex-end',
@@ -251,6 +253,7 @@ const styles = StyleSheet.create({
     elevation: 4,
     shadowColor: 'black',
     shadowOpacity: 10,
+    shadowOffset:{height:0,width:0},
   },
   inBut2: {
     backgroundColor: '#D77702',
@@ -262,6 +265,7 @@ const styles = StyleSheet.create({
     elevation: 4,
     shadowColor: 'black',
     shadowOpacity: 10,
+    shadowOffset:{height:0,width:0},
   },
   bottomButton: {
     marginTop: 10,

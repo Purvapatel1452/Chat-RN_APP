@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  SafeAreaView,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 
@@ -46,10 +47,11 @@ const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
 
   return (
-    <View style={{flex: 1}}>
+    <SafeAreaView style={{flex: 1,backgroundColor:"#D77702"}} >
+    
       <HeaderBar title={'AddFriends'} />
 
-      <ScrollView>
+      <ScrollView style={{backgroundColor:"white"}}>
         <View style={styles.userContainer}>
           {loading ? (
             <View style={styles.loadingContainer}>
@@ -76,7 +78,8 @@ const HomeScreen = () => {
           />
         </View>
       </TouchableOpacity>
-    </View>
+    
+    </SafeAreaView>
   );
 };
 
@@ -95,6 +98,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    top:300
   },
   buttonContainer2: {
     position: 'absolute',
@@ -108,7 +112,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: 'black',
-    shadowOpacity: 1,
+    shadowOffset: {width: 0.1, height: 1},
+    shadowOpacity: 10,
     elevation: 8,
   },
 });

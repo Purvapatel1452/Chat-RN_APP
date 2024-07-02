@@ -22,10 +22,11 @@ import {login} from '../redux/slices/authSlice';
 import {useDispatch, useSelector} from 'react-redux';
 
 import Icon from 'react-native-vector-icons/Feather';
-import {BASE_URL} from '@env';
+
 import axios from 'axios';
 import {fetchUserDetails} from '../redux/slices/usersSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '../../App';
 
 interface LoginProps {}
 
@@ -43,7 +44,7 @@ const RecoverScreen: React.FC<LoginProps> = props => {
   };
   const handleRecoverAccount = async () => {
     try {
-      console.log(BASE_URL, 'BAer4gfy3r34fSEE', email, password);
+      console.log(BASE_URL, 'BAer4gfyk8i3r34fSEE', email, password);
       const token = getToken();
       const response = await axios.post(
         `${BASE_URL}/user/recoverUser`,

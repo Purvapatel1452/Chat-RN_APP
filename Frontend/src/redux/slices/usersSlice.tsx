@@ -1,9 +1,8 @@
-import {BASE_URL, BASE_URL_AND, BASE_URL_IOS} from '@env';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
-import { confirmPlatformPaySetupIntent } from '@stripe/stripe-react-native';
 import axios from 'axios';
-import {Platform} from 'react-native'
+import { BASE_URL } from '../../../App';
 
 const getToken = async () => {
   return await AsyncStorage.getItem('authToken');
@@ -32,10 +31,10 @@ export const fetchUserDetails: any = createAsyncThunk(
   async (userId, {rejectWithValue}) => {
     try {
       const token = await getToken();
-      console.log(BASE_URL_IOS, 'II5thytuhjtht6ughy7yDbu7uDD');
-      console.log(token, 'User ID');
+      console.log(BASE_URL, 'II5ththt6u7yDbu7uDD');
+      console.log(userId, 'User ID');
 
-      const response = await fetch(`${Platform.OS=='ios'?BASE_URL_IOS:BASE_URL_AND}/user/userDetails`, {
+      const response = await fetch(`${BASE_URL}/user/userDetails`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,7 +42,6 @@ export const fetchUserDetails: any = createAsyncThunk(
         },
         body: JSON.stringify({userId}),
       });
-      console.log("RESPO",response)
 
       if (!response.ok) {
       

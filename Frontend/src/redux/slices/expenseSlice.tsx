@@ -1,7 +1,8 @@
-import {BASE_URL} from '@env';
+
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '../../../App';
 
 // Helper function to get token
 const getToken = async () => {

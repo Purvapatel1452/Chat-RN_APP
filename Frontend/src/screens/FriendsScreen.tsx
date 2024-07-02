@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
 import React, {useContext, useDebugValue, useEffect, useState} from 'react';
 
 
@@ -7,6 +7,7 @@ import HeaderBar from '../components/HeaderBar';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchFriendRequests} from '../redux/slices/friendSlice';
 import FastImage from 'react-native-fast-image';
+import { SafeAreaFrameContext } from 'react-native-safe-area-context';
 
 const FriendsScreen = () => {
   const dispatch = useDispatch();
@@ -20,7 +21,8 @@ const FriendsScreen = () => {
   }, []);
 
   return (
-    <View style={{backgroundColor:"white"}}>
+    <SafeAreaView style={{backgroundColor:"#D77702"}}>
+    <View style={{backgroundColor:"white",paddingBottom:200}}>
       <HeaderBar title={'FriendRequest'} onIconPress={undefined} />
 
       {
@@ -42,6 +44,7 @@ const FriendsScreen = () => {
         />
       ))}
     </View>
+    </SafeAreaView>
   );
 };
 

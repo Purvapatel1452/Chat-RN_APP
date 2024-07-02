@@ -1,7 +1,8 @@
-import {BASE_URL} from '@env';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
+import { BASE_URL } from '../../../App';
 
 const getToken = async () => {
   return await AsyncStorage.getItem('authToken');
