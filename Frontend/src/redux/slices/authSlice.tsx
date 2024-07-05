@@ -28,7 +28,7 @@ export const login: any = createAsyncThunk<any>(
   async (userData, {rejectWithValue}) => {
     try {
       console.log('LOGI');
-      console.log(BASE_URL, ';jdrthsferurty6yuyr6frty45eg;ygh67uhfdhiyl');
+      console.log(BASE_URL, ';jdrthsferurty6yutgtrhyr6frty45eg;ygh67uhfdhiyl');
 
       const response = await axios.post(`${BASE_URL}/user/login`, userData);
 

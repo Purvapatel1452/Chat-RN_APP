@@ -9,6 +9,10 @@ import {
   Button,
   TouchableOpacity,
   SafeAreaView,
+  Dimensions,
+  Modal,
+  TextInput,
+  FlatList,
 } from 'react-native';
 
 import {useRoute} from '@react-navigation/native';
@@ -18,14 +22,30 @@ import FontAwesome6Icon from 'react-native-vector-icons/FontAwesome6';
 import {useDispatch, useSelector} from 'react-redux';
 import {fetchExpense, updatePaymentStatus} from '../redux/slices/expenseSlice';
 import FastImage from 'react-native-fast-image';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { NativeModules } from 'react-native';
 
 const ExpenseScreen = ({navigation}: any) => {
   const route = useRoute();
   const {expenseId}: any = route.params;
+  const {CalendarModule}=NativeModules
 
   const {userId} = useSelector((state: any) => state.auth);
   const dispatch = useDispatch();
   const {expens, loading, error} = useSelector((state: any) => state.expense);
+  const {
+    friends,
+    loading: friendLoading,
+    error: friendError,
+  } = useSelector((state:any) => state.group);
+
+  const [showModal,setShowModal]=useState(false)
+  const [title,setTitle]=useState('');
+  const [location,setLocation]=useState('')
+  const [selectedFriends, setSelectedFriends] = useState<any>([]);
+  const [selectedFriendsEmail, setSelectedFriendsEmail] = useState<any>([]);
+
+  
 
   const [load, setLoad] = useState(false);
   const [ld, setLd] = useState(true);
@@ -45,6 +65,29 @@ const ExpenseScreen = ({navigation}: any) => {
       console.error(err);
     }
   };
+
+  const handleExpenseModal = async () => {
+    console.log('EXPENSE');
+    
+
+    setShowModal(true);
+   
+  };
+
+  const handleSelection = (friend:any) => {
+    if (selectedFriends.includes(friend._id)) {
+      setSelectedFriends(selectedFriends.filter((id:any) => id !== friend._id));
+
+    } else {
+      setSelectedFriends([...selectedFriends, friend._id]);
+      setSelectedFriendsEmail([...selectedFriendsEmail, friend.email]);
+    }
+  };
+
+  const handleCalendarEvent=()=>{
+     const emails = selectedFriendsEmail.map(String).join(', ');
+    CalendarModule.addEvent(expens.description,location,emails)
+  }
 
   useEffect(() => {
     dispatch(fetchExpense(expenseId));
@@ -104,6 +147,7 @@ const ExpenseScreen = ({navigation}: any) => {
 
             <Text style={styles.value1}>{expens.description}</Text>
           </View>
+         
 
           <ScrollView
             contentContainerStyle={styles.container}
@@ -184,6 +228,7 @@ const ExpenseScreen = ({navigation}: any) => {
                     : payment.participant.name}{' '}
                   owes ₹{payment.amount}
                 </Text>
+                
 
                 {load ? (
                   <ActivityIndicator />
@@ -200,11 +245,117 @@ const ExpenseScreen = ({navigation}: any) => {
               {expens.settled ? 'Settled' : 'Not Settled'}
             </Text>
           </ScrollView>
+          <TouchableOpacity
+        style={{
+          position:"absolute",
+          bottom:height*0.165,
+          right:width*0.06,
+       
+        }}
+        onPress={() => handleExpenseModal()}>
+          <View  style={styles.buttonContainer1} >
+
+          <MaterialIcons name="calendar-month" size={25} color={'white'} />
+          </View>
+      </TouchableOpacity>
+        
         </View>
+        
       )}
+       <Modal animationType="fade" transparent={true} visible={showModal}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+           
+            <View style={styles.inputContainer}>
+              <MaterialIcons
+                name="location-pin"
+                size={45}
+                style={{
+                  padding: 3,
+                  borderWidth: 0.5,
+                  borderBottomWidth: 3,
+                  borderRadius: 10,
+                  borderColor: 'gray',
+                }}
+                color={'#D77702'}
+              />
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                placeholder="Enter Location"
+                multiline
+                numberOfLines={4}
+                value={location}
+                onChangeText={setLocation}
+              />
+            </View>
+            <Text style={styles.label}>Select Friends:</Text>
+            <View
+              style={{
+                height: 220,
+                borderWidth: 2,
+                borderColor: 'gray',
+                borderRadius: 20,
+                elevation: 2,
+                backgroundColor: 'white',
+                padding: 5,
+              }}>
+              <FlatList
+                // data={friends}
+                data={friends}
+                renderItem={({item}) => (
+                  <TouchableOpacity
+                    style={styles.friendItem}
+                    onPress={() => handleSelection(item)}>
+                    <View style={styles.pressableContainer}>
+                      {
+                        item.image ?
+                        <FastImage source={{uri: item.image}} style={styles.image} />
+                        :
+                        <FastImage
+                        source={{
+                          uri: 'https://www.shutterstock.com/image-vector/default-avatar-profile-icon-vector-600nw-1745180411.jpg',
+                        }}
+                        style={styles.image}
+                      />
+                      }
+            
+                      <View style={styles.textContainer}>
+                        <Text style={styles.textName}>{item.name}</Text>
+                        <Text style={styles.textLast}>{item.email}</Text>
+                      </View>
+                      <View style={styles.checkbox}>
+                        {selectedFriends.includes(item._id) && (
+                          <View style={styles.checkedCircle} />
+                        )}
+                      </View>
+                      <View />
+                    </View>
+                  </TouchableOpacity>
+                )}
+                keyExtractor={item => item._id}
+              />
+            </View>
+      
+            
+            <TouchableOpacity
+              style={styles.saveButton}
+              onPress={() => handleCalendarEvent()}>
+              <Text style={styles.saveButtonText}>Set Event</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowModal(false)}>
+              <Text style={styles.closeButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+  
     </SafeAreaView>
   );
 };
+
+const {width, height} = Dimensions.get('window');
 
 export default ExpenseScreen;
 
@@ -214,7 +365,6 @@ const styles = StyleSheet.create({
     backgroundColor:"#f5f5f5"
   },
   container: {
-    // flexGrow: 1,
     padding: 16,
     paddingBottom:250,
     backgroundColor: '#f5f5f5',
@@ -228,7 +378,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 13,
-    marginTop: -26,
+    
     marginBottom: 5,
     fontWeight: '400',
     color: 'gray',
@@ -373,5 +523,149 @@ const styles = StyleSheet.create({
     backgroundColor:"#f5f5f5",
     justifyContent: 'center',
     alignItems: 'center',
+  },
+    buttonContainer1: {
+    width:width*0.15,
+    backgroundColor: '#D77702',
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    borderRadius: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: 'gray',
+    shadowOpacity: 2,
+    shadowOffset:{height:0,width:0},
+    elevation: 8,
+    marginBottom:20
+  },
+  buttonText1: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'white',
+    textAlign: 'center',
+    marginLeft: 6,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    width: '90%',
+    maxHeight: '90%',
+    borderWidth: 2,
+    borderColor: 'gray',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    marginVertical: 10,
+  },
+  input: {
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+    width: 230,
+    marginLeft: 2,
+  },
+  input1: {
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+    width: 250,
+    marginLeft: 2,
+    marginRight: 50,
+  },
+  textArea: {
+    height: 41,
+  },
+  label1: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  friendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 5,
+    borderWidth: 1,
+    margin: 5,
+    borderRadius: 10,
+    height: 60,
+    borderColor: 'gray',
+    elevation: 10,
+    backgroundColor: 'white',
+    shadowColor: 'gray',
+    shadowOpacity: 20,
+    shadowOffset:{height:0,width:0}
+  },
+  saveButton: {
+    backgroundColor: 'darkorange',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  closeButton: {
+    backgroundColor: 'gray',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  pressableContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    borderWidth: 0,
+    borderLeftWidth: 0,
+    borderRightWidth: 0,
+    borderTopWidth: 0,
+    borderColor: '#D0D0D0',
+    padding: 5,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  textName: {
+    fontWeight: '500',
+    fontSize: 15,
+    color: 'black',
+  },
+  textLast: {
+    color: 'gray',
+    fontWeight: '500',
+  },
+  checkbox: {
+    height: 24,
+    width: 24,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkedCircle: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: 'gray',
   },
 });

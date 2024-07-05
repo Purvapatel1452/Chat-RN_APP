@@ -32,8 +32,9 @@ import storage from '@react-native-firebase/storage';
 
 import FastImage from 'react-native-fast-image';
 
-import {BASE_URL} from '@env';
+
 import {fetchRecepientData} from '../redux/slices/recepientSlice';
+import { BASE_URL } from '../../App';
 
 const UserProfileScreen = () => {
   const [image, setImage] = useState(null);

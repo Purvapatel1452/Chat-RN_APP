@@ -36,7 +36,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {fetchGroupData, fetchGroupExpenses} from '../redux/slices/groupSlice';
 import storage from '@react-native-firebase/storage';
 import Modal from 'react-native-modal';
-import {BASE_URL} from '@env';
+
 import HeaderChatBar from '../components/HeaderChatBar';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import FastImage from 'react-native-fast-image';
@@ -45,7 +45,7 @@ import firebase from '../firebase/firebaseConfig';
 import {fetchMessages, sendMessage} from '../redux/slices/chatSlice';
 
 const GroupChatScreen = ({navigation}: any) => {
-  console.log(BASE_URL, 'gfy');
+
   const [showEmojiSelector, setShowEmojiSelector] = useState(false);
 
   const route = useRoute();

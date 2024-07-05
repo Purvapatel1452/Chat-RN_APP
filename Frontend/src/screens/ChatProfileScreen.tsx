@@ -27,11 +27,12 @@ import ImagePicker from 'react-native-image-crop-picker';
 import storage from '@react-native-firebase/storage';
 import * as Progress from 'react-native-progress';
 
-import {BASE_URL} from '@env';
+
 import {editGroup, fetchGroupData} from '../redux/slices/groupSlice';
 import UserChat from '../components/UserChat';
 import FastImage from 'react-native-fast-image';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '../../App';
 
 const ChatProfileScreen = () => {
   const [image, setImage] = useState<any>(null);
